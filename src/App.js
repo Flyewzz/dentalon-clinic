@@ -9,12 +9,12 @@ import Services from './Pages/Services';
 import Contact from './Pages/Contact';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
-import ChatApp from './Pages/ChatApp';
 import BookingHours from './Pages/BookingHours';
 import Profile from './Pages/Profile';
 import UserProfile from './Pages/UserProfile';
 import ApBooking from './Components/ApBooking';
 import Dashboard from './Pages/PagesData/Admin/Dashboard';
+import DoctorDashboard from "./Pages/DoctorDashboard";
 
 const App = () => {
   // const [currentUser, setCurrentUser] = useState(undefined);
@@ -59,17 +59,13 @@ const App = () => {
           path="/dental-clinic/user/profile"
           element={<UserProfile />}
         />
-        <Route
-          exact
-          path="/dental-clinic/user/chat_section"
-          element={<ChatApp />}
-        />
         <Route exact path="/dental-clinic/slot" element={<BookingHours />} />
         <Route
           exact
           path="/dental-clinic/admin-person"
           element={<Dashboard />}
         />
+        <Route exact path="/dental-clinic/doctor-dashboard" element={<DoctorDashboard />} />
       </Routes>
     </>
   );
