@@ -30,11 +30,10 @@ const Home = () => {
                     color: "hsl(218, 70%, 18%);",
                   }}
                 >
-                  We Care For Your Smile
+                  Мы заботимся о вашей улыбке
                 </h2>
                 <p>
-                  We Believe Everyone should have easy access to great dental
-                  clinic
+                  Мы считаем, что каждый должен иметь доступ к отличным доступным стоматологическим услугам.
                 </p>
                 <div className="social_links"></div>
               </div>
@@ -56,37 +55,36 @@ const Home = () => {
         <div className="clinic_container">
           <div className="clinic_info">
             <div className="basic_info" id="info_01">
-              <h2>Flexible Schedule</h2>
+              <h2>Гибкий график</h2>
               <p>
-                We work on holidays, besides working late on regular days. In
-                case of emergencies we accept bookings.
+                Иногда мы работаем по праздникам и воскресеньям.
+                В случае чрезвычайных ситуаций мы принимаем заказы.
               </p>
 
               <HashLink
                 to={"/register"}
                 style={{ textDecoration: "none", color: "#fff" }}
               >
-                <div className="transperent_btn"> Chat with Doctor</div>
+                <div className="transperent_btn"> Чат с врачом</div>
               </HashLink>
             </div>
             <div className="basic_info" id="info_02">
-              <h2>Best Price Guarantee</h2>
+              <h2>Гарантия лучшей цены</h2>
               <p>
-                Our reasonable prices made thousands of people smile with a new,
-                beautiful, irresistible smile, as never before!!
+                Наши приятные цены заставили тысячи людей улыбнуться с новой,
+                красивой, неотразимой улыбкой!
               </p>
               <HashLink
                 to={"/#contact-us"}
                 style={{ textDecoration: "none", color: "#fff" }}
               >
-                <div className="transperent_btn">Read More</div>
+                <div className="transperent_btn">Подробнее</div>
               </HashLink>
             </div>
             <div className="basic_info" id="info_03">
-              <h2>Opening Hours</h2>
+              <h2>Часы работы</h2>
               <p>
-                Monday – Saturday : 10.00 am – 10.00 pm Sunday : 5.00 pm – 10.00
-                pm
+                Понедельник – Суббота : 10.00 – 16.00
               </p>
 
               <HashLink
@@ -94,7 +92,7 @@ const Home = () => {
                 style={{ textDecoration: "none", color: "#fff" }}
               >
                 <div className="transperent_btn" id="tr_btn_01">
-                  Book An Appointment
+                  Записаться на прием
                 </div>
               </HashLink>
             </div>

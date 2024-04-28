@@ -5,6 +5,9 @@ const bcrypt = require('bcrypt');
 const User = require('./model/userModel');
 const appointmentRoutes = require('./routes/appointmentRoutes'); // Подключение новых маршрутов бронирований
 const appointment_info = require('./model/appointmentCheck');
+const ContractManager = require('./services/ContractManager');
+const Appointment = require('./model/Appointment');
+const moment = require('moment-timezone');
 
 require('dotenv').config({ path: './.env' });
 
@@ -29,6 +32,52 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/appointments', appointmentRoutes); // Используйте новые маршруты бронирований
+
+
+const contractManager = new ContractManager();
+require('moment/locale/ru'); // импортируем русскую локаль
+moment.locale('ru'); // устанавливаем русскую локаль глобально
+
+function getMonthNameInGenitive(monthNumber) {
+  const monthNames = [
+    'января', 'февраля', 'марта', 'апреля', 'мая', 'июня',
+    'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'
+  ];
+  return monthNames[monthNumber]; // monthNumber должен быть от 0 до 11
+}
+
+app.get('/api/v1/contracts/slots/:id', async (req, res) => {
+  try {
+    const appointmentData = await Appointment.findById({_id: req.params.id}).lean();
+    const currentDate = moment(); // Используйте currentDate = moment(appointmentData.date) для использования даты из данных аппойнтмента
+
+    const formattedDate = {
+      dayOfDate: currentDate.format('D').toString(), // День месяца
+      monthOfDate: getMonthNameInGenitive(currentDate.month()).toString(), // Название месяца (на русском)
+      yearOfDate: currentDate.format('YYYY').toString() // Год
+    };
+
+    const contractPath = "../controllers/Договор лечения обновленный 2017 — копия.docx";
+    const docBuffer = contractManager.buildContract(contractPath, {
+      contractNumber: '1935',
+      ...formattedDate,
+      patientName: appointmentData.name,
+      patientAddress: "ул. 50 Лет Октября 4/1, 15",
+      patientPhoneNumber: appointmentData.phone,
+    });
+
+    const fileName = `Договор лечения ${appointmentData.name}.docx`;
+    
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`);
+    res.setHeader('Content-Length', docBuffer.length);
+
+    res.send(docBuffer);
+  } catch (error) {
+    res.status(500).send('Error generating document');
+  }
+});
+
 
 
 

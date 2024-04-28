@@ -16,7 +16,7 @@ class SlotManager {
             return []; // Если день заблокирован или расписание не найдено
         }
 
-        const workHours = schedule.days.find(d => d.dayOfWeek === dayOfWeek);
+        const workHours = await schedule.days.find(d => d.dayOfWeek === dayOfWeek);
         if (!workHours) {
             return [];
         }
@@ -24,7 +24,6 @@ class SlotManager {
         let slots = [];
         let startTime = moment(`${date}T${workHours.startTime}`);
         let endTime = moment(`${date}T${workHours.endTime}`);
-        
         let currentTime = startTime;
 
         while (currentTime.isBefore(endTime)) {

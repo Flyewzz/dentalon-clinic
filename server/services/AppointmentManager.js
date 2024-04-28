@@ -3,6 +3,7 @@ const moment = require('moment-timezone');
 
 class AppointmentManager {
     async bookAppointment(req) {
+        req.endTime = moment(req.startTime).clone().add(1, 'hour').toISOString();
         const appointment = new Appointment(req);
         return await appointment.save();
     }

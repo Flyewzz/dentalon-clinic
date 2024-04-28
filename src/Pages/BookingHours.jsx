@@ -1,12 +1,9 @@
 import React, {useEffect, useState} from 'react';
-import EveningData from './PagesData/EveningData';
-import MorningData from './PagesData/MorningData';
 import Logo from '../assets/logo.png';
-import { ToastContainer, toast } from 'react-toastify';
+import {toast, ToastContainer} from 'react-toastify';
 import './BookingHours.css';
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import Spinner from '../Components/Spinner';
-import axios from "axios";
 
 const BookingHours = () => {
   const url = 'http://localhost:5001/api/v1/appointments';
@@ -20,7 +17,6 @@ const BookingHours = () => {
     email: '',
     phone: '',
     startTime: '',
-    endTime: '',
   });
   const [btn, setBtn] = useState(0);
   const [aces, setACES] = useState(-1);
@@ -33,36 +29,30 @@ const BookingHours = () => {
     const date = new Date(dateString);
 
     // Форматирование начального времени с учётом часового пояса
-    const startTime = date.toLocaleTimeString('ru-RU', {
+    return date.toLocaleTimeString('ru-RU', {
       // timeZone: 'Europe/Moscow',
       hour: '2-digit',
       minute: '2-digit',
       hour12: false
     });
-
-    // Вычисление и форматирование конечного времени слота (плюс один час)
-    date.setHours(date.getHours() + 1);
-    const endTime = date.toLocaleTimeString('ru-RU', {
-      // timeZone: 'Europe/Moscow',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-
-    return `${startTime}-${endTime}`;
   }
-
+  
   useEffect(() => {
-    if (date) {
-      // Предполагается использование axios для отправки запросов на API
-      fetch(`http://localhost:5001/api/v1/appointments/${date}`)
-          .then(response => response.json())
-          .then(data => {
-            setSlots(data); // предполагаем, что сервер возвращает { availableSlots: [...] }
-            setSelectedSlotIndex(null); // Сброс выбора при смене даты
-          })
-          .catch(error => console.error('Error fetching slots:', error));
+    async function fetchSlots() {
+      if (!date) return;
+
+      try {
+        const response = await fetch(`http://192.168.10.16:5001/api/v1/appointments/${date}`);
+        const data = await response.json();
+        console.log(data);
+        setSlots(data); // Обновление слотов
+        setSelectedSlotIndex(null); // Сброс выбранного слота
+      } catch (error) {
+        console.error('Error fetching slots:', error);
+      }
     }
+
+    fetchSlots();
   }, [date]);
   
   const toastOptions = {
@@ -137,14 +127,13 @@ const BookingHours = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const { date, name, email, phone, startTime, endTime } = activeUser;
+    const { date, name, email, phone, startTime } = activeUser;
     const requestOptions = {
       date,
       name,
       email,
       phone,
       startTime,
-      endTime,
     };
 
     console.log(requestOptions);
@@ -219,6 +208,7 @@ const BookingHours = () => {
                         min={ getCurrentDate() }
                         onChange={(event) => {
                           const selectedDate = event.target.value;
+                          
                           console.log(selectedDate);
                           if (checkDate(selectedDate)) {
                             handleInputs(event);
@@ -226,6 +216,7 @@ const BookingHours = () => {
                           
                           handleDateChange(event);
                         }}
+                        
                         required
                       />
                     </div>
@@ -256,7 +247,7 @@ const BookingHours = () => {
                     <div className="in__container">
                       <label>Номер телефона </label>
                       <input
-                        type="number"
+                        type="tel"
                         placeholder="Введите ваш номер телефона"
                         name="phone"
                         value={activeUser.phone}
@@ -274,8 +265,9 @@ const BookingHours = () => {
               </div>
               <div className="me_slot_selection">
                 <div className="bsc_lower_morning_container">
-                  <span>Morning and Evening Slots</span>
+                  <div><span>Свободные слоты</span></div>
                   <div className="morning_info_container" id="container45">
+
                     {slots !== undefined && slots.length > 0 ? (
                         slots.map((slot, index) => (
                             <div
@@ -290,7 +282,6 @@ const BookingHours = () => {
                                   setActiveUser({
                                     ...activeUser,
                                     startTime: slot.startTime,
-                                    endTime: slot.endTime,
                                   });
                                 }}
                             >
@@ -298,8 +289,8 @@ const BookingHours = () => {
                             </div>
                         ))
                     ) : (
-                        
-                        <p className="no-slots">No available slots.</p>
+
+                        <p className="no-slots">Нет свободных слотов.</p>
                     )}
                   </div>
                 </div>
@@ -307,7 +298,7 @@ const BookingHours = () => {
                 <div className="submit_slot_btn">
                   <button className="booking_c_btn" id="bcb" type="submit">
                         <span style={btn === 1 ? {display: 'none'} : {}}>
-                          Submit
+                          Записаться
                         </span>
                     <Spinner id="sb_loader" style={loader}/>
                   </button>
