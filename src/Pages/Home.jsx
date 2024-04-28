@@ -60,13 +60,6 @@ const Home = () => {
                 Иногда мы работаем по праздникам и воскресеньям.
                 В случае чрезвычайных ситуаций мы принимаем заказы.
               </p>
-
-              <HashLink
-                to={"/register"}
-                style={{ textDecoration: "none", color: "#fff" }}
-              >
-                <div className="transperent_btn"> Чат с врачом</div>
-              </HashLink>
             </div>
             <div className="basic_info" id="info_02">
               <h2>Гарантия лучшей цены</h2>
