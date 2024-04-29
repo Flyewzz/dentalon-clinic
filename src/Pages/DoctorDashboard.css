@@ -126,3 +126,38 @@ input[type="submit"] {
 input[type="submit"]:hover {
     background-color: #45a049;
 }
+
+button {
+    padding: 10px 20px;
+    margin: 5px;
+    background-color: #007BFF;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+.modal-content {
+    background-color: #f0f0f0;
+    padding: 20px;
+    border-radius: 10px;
+}
+
+.event:hover {
+    background-color: #ddd; /* Светлее на hover */
+}
+
+@media (hover: none) {
+    .event:hover {
+        background-color: initial; /* Нет эффекта на тач-устройствах */
+    }
+}

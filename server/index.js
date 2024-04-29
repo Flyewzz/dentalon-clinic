@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('./model/userModel');
 const appointmentRoutes = require('./routes/appointmentRoutes'); // Подключение новых маршрутов бронирований
-const appointment_info = require('./model/appointmentCheck');
 const ContractManager = require('./services/ContractManager');
 const Appointment = require('./model/Appointment');
 const moment = require('moment-timezone');
@@ -142,12 +141,12 @@ app.post('/login_user', async (req, res) => {
 });
 
 app.get('/dental-clinic/user/profile', async (req, res) => {
-  try {
-    const Appointment_info = await appointment_info.find();
-    res.send(Appointment_info);
-  } catch (err) {
-    console.log(err);
-  }
+  // try {
+  //   const Appointment_info = await appointment_info.find();
+  //   res.send(Appointment_info);
+  // } catch (err) {
+  //   console.log(err);
+  // }
 });
 
 app.get('/dental-clinic/admin-person', async (req, res) => {});
