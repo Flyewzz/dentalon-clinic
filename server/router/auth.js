@@ -25,12 +25,12 @@ router.post('/register', async (req,res)=>{
         if(userExist){
            return res.status(401).json({error:"Email already Exist"})
         }
-        const user = new User({name, email, password:hashedPassword })
+        const user = new User({name, email, password: hashedPassword })
 
         const userRegister = await user.save()
 
-        if(userRegister){
-            res.status(201).json({message:"user registered successfully"})
+        if(userRegister) {
+            res.status(201).json({message:"User registered successfully"})
         }
     }
     catch(err){

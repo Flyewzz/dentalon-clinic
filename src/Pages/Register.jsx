@@ -9,7 +9,7 @@ import Spinner from "../Components/Spinner";
 // import axios from "axios";
 
 const Register = () => {
-  const url = "https://dental-service.onrender.com/register";
+  const url = "http://192.168.10.16:5001/register";
 
   const navigate = useNavigate();
   const [loader, setLoader] = useState("none");
@@ -125,7 +125,7 @@ const Register = () => {
               name="email"
               value={user.email}
               onChange={handleInputs}
-              autoComplete="off"
+              autoComplete="on"
             />
             <input
               type="Password"
@@ -148,7 +148,7 @@ const Register = () => {
               <Spinner id="rg_loder" style={loader} />
             </button>
             <span className="lower_title_register">
-              Already have an account ?<Link to="/login_user">Login</Link>
+              Already have an account?<Link to="/login_user">Login</Link>
             </span>
           </form>
         </FormContainer>

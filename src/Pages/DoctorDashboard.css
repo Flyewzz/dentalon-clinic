@@ -101,7 +101,7 @@
 }
 
 /* Стили для текстовых полей внутри модального окна */
-input[type="text"], input[type="datetime-local"], textarea {
+.doctor-dashboard.input[type="text"], .doctor-dashboard.input[type="datetime-local"], textarea {
     width: 100%;
     padding: 8px;
     margin: 5px 0 20px 0;

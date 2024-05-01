@@ -1,21 +1,32 @@
 class EventService {
-    constructor() {
-        this.events = [
-            // начальный набор событий
-            {
-                id: 0,
-                title: 'Петрасовна',
-                start: new Date(2024, 3, 29, 10, 0),
-                end: new Date(2024, 3, 29, 11, 0),
-                isBlocked: false
-            }
-        ];
+    constructor(apiUrl) {
+        this.apiUrl = apiUrl || 'http://localhost:5001/api/v1/appointments/slots'; // URL вашего API;
+        this.events = [];
+        console.log(this.events);
     }
 
-    fetchEvents = () => {
-        // Здесь будет логика получения событий через API
-        return this.events;
-    };
+    async fetchEvents(start, end, doctorId = 1) {
+        try {
+            start = start.toISOString();
+            end = end.toISOString();
+            console.log(start, end);
+            const response = await fetch(`${this.apiUrl}?startTime=${start}&endTime=${end}`);
+            const data = await response.json();
+            
+            return data.map(app => ({
+                id: app._id,
+                title: app.name, // Имя клиента как заголовок
+                start: new Date(app.startTime),
+                end: new Date(app.endTime),
+                phone: app.phone,
+                email: app.email || '',
+                isBlocked: false,
+            }));
+        } catch (error) {
+            console.error('Error fetching events:', error);
+            return [];  // Возвращаем пустой массив в случае ошибки
+        }
+    }
 
     addEvent = (eventData) => {
         const newEvent = { ...eventData, id: this.getNextId() };

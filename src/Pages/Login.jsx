@@ -8,7 +8,7 @@ import './Login.css';
 import Spinner from '../Components/Spinner';
 const Login = () => {
   // const url = "http://localhost:5000/login_user";
-  const url = 'https://dental-service.onrender.com/login_user';
+  const url = 'http://192.168.10.16:5001/login_user';
   const navigate = useNavigate();
 
   const [loader, setLoader] = useState('none');

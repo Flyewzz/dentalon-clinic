@@ -2,6 +2,15 @@ const Appointment = require("../model/Appointment");
 const moment = require('moment-timezone');
 
 class AppointmentManager {
+
+    async getAppointments(req) {
+        const { startTime, endTime, doctorId = 1 } = req.query;
+        return await Appointment.find({
+            startTime: {$gte: new Date(startTime)},
+            endTime: {$lte: new Date(endTime)},
+            doctorId: doctorId,
+        });
+    }
     async bookAppointment(req) {
         req.endTime = moment(req.startTime).clone().add(1, 'hour').toISOString();
         const appointment = new Appointment(req);

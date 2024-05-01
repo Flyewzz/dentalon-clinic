@@ -12,12 +12,13 @@ class EventCalendar extends React.Component {
     constructor(props) {
         super(props);
         this.eventService = new EventService();
+        
         this.state = {
-            events: this.eventService.fetchEvents(),
+            events: [],
             modalIsOpen: false,
             selectedEvent: null,
         };
-        
+
         this.messages = {
             allDay: 'Весь день',
             previous: '<',
@@ -33,23 +34,38 @@ class EventCalendar extends React.Component {
             showMore: total => `+ Показать ещё ${total}`
         };
     }
+
+    componentDidMount() {
+        this.fetchEvents();
+    }
+
+    fetchEvents = async ({startTime, endTime} = getCurrentWeekRange()) => {
+        const events = await this.eventService.fetchEvents(startTime, endTime);
+        this.setState({ events: events });
+    }
+
+    handleRangeChange = (range) => {
+        if (Array.isArray(range)) {
+            const start = range[0];
+            let end = 0;
+            if (range.length === 1) {
+                end = moment(start).endOf('day').toDate()
+            } else {
+                end = new Date(range[range.length - 1]);
+            }
+            
+            this.fetchEvents({startTime: start, endTime: end});
+            return
+        }
+
+        this.fetchEvents({startTime: range.start, endTime: range.end});
+    };
     
     handleSelectEvent = (event) => {
         this.setState({
             selectedEvent: event,
             modalIsOpen: true
         });
-    }
-
-    handleContextMenuClick = (action, event) => {
-        if (action === 'delete') {
-            this.handleDeleteEvent(event.id);
-        } else if (action === 'edit') {
-            this.setState({
-                selectedEvent: event,
-                modalIsOpen: true
-            });
-        }
     }
     
     closeModal = () => {
@@ -126,6 +142,7 @@ class EventCalendar extends React.Component {
                     selectable
                     onSelectEvent={this.handleSelectEvent}
                     onSelectSlot={this.handleSelectSlot}
+                    onRangeChange={this.handleRangeChange}
                     components={{
                         event: EventWrapper
                     }}
@@ -141,14 +158,14 @@ class EventCalendar extends React.Component {
                         <h2>{this.state.selectedEvent && this.state.selectedEvent.id !== undefined ? 'Редактировать слот' : 'Создать новый слот'}</h2>
                         <form onSubmit={(e) => {this.handleSubmitChanges(e);
                         }}>
-                            <input type="text" name="title" defaultValue={this.state.selectedEvent?.title}
+                            <input className={'.doctor-dashboard'} type="text" name="title" defaultValue={this.state.selectedEvent?.title}
                                    placeholder="Название события или причина блокировки"/>
-                            <input type="datetime-local" name="start"
+                            <input className={'.doctor-dashboard'} type="datetime-local" name="start"
                                    defaultValue={moment(this.state.selectedEvent?.start).format('YYYY-MM-DDTHH:mm')}/>
-                            <input type="datetime-local" name="end"
+                            <input className={'.doctor-dashboard'} type="datetime-local" name="end"
                                    defaultValue={moment(this.state.selectedEvent?.end).format('YYYY-MM-DDTHH:mm')}/>
-                            <input type="text" name="phone" defaultValue={this.state.selectedEvent?.phone} placeholder="Телефон"/>
-                            <input type="email" name="email" defaultValue={this.state.selectedEvent?.email} placeholder="Email"/>
+                            <input className={'.doctor-dashboard'} type="text" name="phone" defaultValue={this.state.selectedEvent?.phone} placeholder="Телефон"/>
+                            <input className={'.doctor-dashboard'} type="email" name="email" defaultValue={this.state.selectedEvent?.email} placeholder="Email"/>
                             <label>
                                 <input type="checkbox"
                                        name="isBlocked"
@@ -176,6 +193,14 @@ function EventWrapper({ event }) {
             {event.title}
         </div>
     );
+}
+
+function getCurrentWeekRange() {
+    const startOfWeek = new Date();
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    const endOfWeek = new Date(startOfWeek);
+    endOfWeek.setDate(endOfWeek.getDate() + 6);
+    return { startTime: startOfWeek, endTime: endOfWeek };
 }
 
 export default EventCalendar;
