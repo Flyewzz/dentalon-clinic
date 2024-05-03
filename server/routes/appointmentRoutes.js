@@ -9,6 +9,6 @@ router.get('/slots', appointmentController.getAppointments);
 router.get('/:date', appointmentController.getSlots);
 router.post('/', appointmentController.createAppointment);
 router.delete('/:appointmentId', appointmentController.cancelAppointment);
-router.put('/:appointmentId', appointmentController.rescheduleAppointment);
+router.put('/:appointmentId', appointmentController.updateAppointment);
 
 module.exports = router;

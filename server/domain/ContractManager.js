@@ -1,5 +1,5 @@
 // documentService.js
-const DocxGeneratorAdapter = require('../adapters/DocxGeneratorAdapter');
+const DocxGeneratorAdapter = require('../services/DocxGeneratorAdapter');
 
 class ContractManager {
     constructor() {

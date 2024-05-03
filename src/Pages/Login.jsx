@@ -86,12 +86,14 @@ const Login = () => {
             </div>
             <input
               type="text"
+              className="login"
               placeholder="Enter your Email"
               name="email"
               onChange={(e) => handleChange(e)}
             />
             <input
               type="Password"
+              className="login"
               placeholder="Password"
               name="password"
               onChange={(e) => handleChange(e)}

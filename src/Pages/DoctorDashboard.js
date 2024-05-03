@@ -10,7 +10,7 @@ const DoctorDashboard = () => {
     return (
         <div>
             <h1>Личный кабинет врача</h1>
-            <EventCalendar />
+            <EventCalendar baseUrl='http://localhost:5001/api/v1' />
         </div>
     );
 };

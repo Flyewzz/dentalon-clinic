@@ -1,6 +1,6 @@
 const DoctorScheduleManager = require('./DoctorScheduleManager');
 const AppointmentManager = require('./AppointmentManager');
-const Appointment = require('../model/Appointment')
+const Appointment = require('../domain/model/Appointment')
 const moment = require('moment-timezone');
 
 class SlotManager {

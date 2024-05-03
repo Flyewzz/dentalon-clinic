@@ -1,0 +1,149 @@
+/* Общие стили календаря */
+.rbc-calendar {
+    font-family: 'Arial', sans-serif; /* Пример шрифта, измените по вашему выбору */
+    color: #333; /* Тёмный цвет текста для лучшей читаемости */
+    border: 1px solid #ddd; /* Границы для элементов календаря */
+    background-color: #fff; /* Фоновый цвет элементов */
+}
+
+/* Стилизация кнопок навигации */
+.rbc-btn-group button {
+    color: #333; /* Цвет текста кнопок */
+    background-color: transparent; /* Прозрачный фон кнопок */
+    border: 1px solid #ccc; /* Граница кнопок */
+    padding: 5px 10px; /* Паддинг для кнопок */
+    outline: none; /* Убрать стандартный outline при фокусе */
+}
+
+.rbc-btn-group button:hover {
+    background-color: #f0f0f0; /* Цвет фона кнопок при наведении */
+}
+
+/* Стилизация событий в календаре */
+.rbc-event {
+    background-color: #007bff; /* Цвет фона событий */
+    color: white; /* Цвет текста событий */
+    border-radius: 5px; /* Скругление углов событий */
+    padding: 2px 5px; /* Паддинг внутри событий */
+    border: none; /* Убрать границу событий */
+}
+
+.rbc-event:hover {
+    background-color: #0056b3; /* Темный цвет фона событий при наведении */
+}
+
+/* Стилизация заголовка месяца */
+.rbc-toolbar-label {
+    font-size: 16px; /* Размер шрифта для месяца и года */
+    color: #333; /* Цвет шрифта для месяца и года */
+}
+
+/* Стилизация дней недели */
+.rbc-header {
+    background-color: #e9ecef; /* Светлый фон для заголовков дней */
+    color: #333; /* Цвет текста дней */
+    font-weight: bold; /* Жирное начертание для дней */
+    padding: 5px 0; /* Паддинг для дней */
+}
+
+.react-contextmenu {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    z-index: 10000; /* Убедитесь, что меню выше всех элементов */
+}
+
+.react-contextmenu-item {
+    padding: 8px 12px;
+    font-size: 16px;
+    color: #333;
+    cursor: pointer;
+}
+
+.react-contextmenu-item:hover {
+    background-color: #f7f7f7;
+}
+
+.ReactModal__Overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный фон для затемнения страницы */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.ReactModal__Overlay--after-open {
+    opacity: 1;
+    transition: opacity 200ms ease-in-out;
+}
+
+.ReactModal__Content {
+    position: relative;
+    margin: auto;
+    border: 1px solid #ccc;
+    background: #f0f0f0; /* Светлый серый фон, чтобы выделить модальное окно на фоне страницы */
+    overflow: auto;
+    WebkitOverflowScrolling: 'touch';
+    border-radius: 10px; /* Скругление углов */
+    outline: none;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Тень для добавления глубины */
+    max-width: 500px; /* Ограничение максимальной ширины модального окна */
+    width: auto;
+    height: min-content;
+    color: #333; /* Темно-серый цвет текста для контрастности */
+    z-index: 1100;
+}
+
+/* Стили для текстовых полей внутри модального окна */
+.doctor-dashboard-modal input,
+.doctor-dashboard-modal textarea {
+    width: 100%;
+    padding: 8px;
+    margin: 5px 0 20px 0;
+    display: inline-block;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    background-color: #fff; /* Белый фон текстовых полей для контрастности */
+    color: #333; /* Черный цвет текста в полях */
+}
+
+.doctor-dashboard-modal input:focus {
+    border: 0.1rem solid #997af0;
+    outline: none;
+}
+
+.doctor-dashboard-modal input[type="submit"] {
+    background-color: #4CAF50;
+    color: white;
+    padding: 14px 20px;
+    margin: 15px 0;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.doctor-dashboard-modal input[type="submit"]:hover {
+    background-color: #45a049;
+}
+
+.doctor-dashboard-modal label {
+    display: flex;
+    align-items: center; /* Align items vertically */
+    justify-content: center; /* Center items horizontally */
+}
+
+.doctor-dashboard-modal input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+
+.doctor-dashboard-modal input[type="checkbox"] {
+    margin-right: 5px;
+}

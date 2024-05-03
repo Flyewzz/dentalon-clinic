@@ -208,8 +208,6 @@ const BookingHours = () => {
                         min={ getCurrentDate() }
                         onChange={(event) => {
                           const selectedDate = event.target.value;
-                          
-                          console.log(selectedDate);
                           if (checkDate(selectedDate)) {
                             handleInputs(event);
                           }

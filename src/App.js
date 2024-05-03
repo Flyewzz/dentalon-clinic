@@ -16,6 +16,8 @@ import ApBooking from './Components/ApBooking';
 import Dashboard from './Pages/PagesData/Admin/Dashboard';
 import DoctorDashboard from "./Pages/DoctorDashboard";
 
+// require('dotenv').config()
+
 const App = () => {
   // const [currentUser, setCurrentUser] = useState(undefined);
 

@@ -1,9 +1,11 @@
 // appointmentController.js
 
-const AppointmentManager = require('../services/AppointmentManager');
-const SlotManager = require('../services/SlotManager');
+const AppointmentManager = require('../domain/AppointmentManager');
+const SlotManager = require('../domain/SlotManager');
+const AppointmentService = require('../services/mongo/AppointmentService');
 
-const appointmentManager = new AppointmentManager();
+const appointmentService = new AppointmentService();
+const appointmentManager = new AppointmentManager(appointmentService);
 // Предполагаем, что SlotManager правильно инициализирован и готов к использованию
 const slotManager = new SlotManager(1); // ID врача пока статичен
 
@@ -21,7 +23,7 @@ exports.createAppointment = async (req, res) => {
         const appointment = await appointmentManager.bookAppointment(req.body);
         res.status(201).json(appointment);
     } catch (error) {
-        res.status(400).json({ message: "wwe" });
+        res.status(error.statusCode || 500).json({ message: error.message });
     }
 };
 
@@ -34,12 +36,12 @@ exports.cancelAppointment = async (req, res) => {
     }
 };
 
-exports.rescheduleAppointment = async (req, res) => {
+exports.updateAppointment = async (req, res) => {
     try {
-        const appointment = await appointmentManager.rescheduleAppointment(req.params.appointmentId, req.body);
+        const appointment = await appointmentManager.updateAppointment(req.params.appointmentId, req.body);
         res.status(200).json(appointment);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(error.statusCode || 500).json({ message: error.message });
     }
 };
 

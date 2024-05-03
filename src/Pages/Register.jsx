@@ -113,6 +113,7 @@ const Register = () => {
             </div>
             <input
               type="text"
+              className="registration"
               placeholder="Enter Your Name"
               name="name"
               value={user.name}
@@ -121,6 +122,7 @@ const Register = () => {
             />
             <input
               type="email"
+              className="registration"
               placeholder="Email"
               name="email"
               value={user.email}
@@ -129,6 +131,7 @@ const Register = () => {
             />
             <input
               type="Password"
+              className="registration"
               placeholder="Password"
               name="password"
               value={user.password}
@@ -137,6 +140,7 @@ const Register = () => {
             />
             <input
               type="Password"
+              className="registration"
               placeholder="Confirm Password"
               name="confirmPassword"
               value={user.confirmPassword}

@@ -16,7 +16,8 @@
 ::placeholder {
   color: #6a6a6a !important;
 }
-input[type='date'] {
+
+.booking_section_container input {
   background: transparent;
   color: white;
 }

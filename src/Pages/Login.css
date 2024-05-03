@@ -40,7 +40,7 @@ h1 {
   height: 450px;
   margin-bottom: 30px;
 }
-input {
+input.login, input.booking {
   background-color: transparent;
   padding: 1rem;
   border: 0.1rem solid #4e0eff;

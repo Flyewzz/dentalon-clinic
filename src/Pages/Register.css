@@ -47,7 +47,7 @@ form {
   padding: 3rem 5rem;
   border-bottom: 7px solid white;
 }
-input {
+input.registration {
   background-color: transparent;
   padding: 1rem;
   border: 0.1rem solid #4e0eff;

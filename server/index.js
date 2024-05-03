@@ -2,10 +2,10 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const User = require('./model/userModel');
+const User = require('./domain/model/userModel');
 const appointmentRoutes = require('./routes/appointmentRoutes'); // Подключение новых маршрутов бронирований
-const ContractManager = require('./services/ContractManager');
-const Appointment = require('./model/Appointment');
+const ContractManager = require('./domain/ContractManager');
+const Appointment = require('./domain/model/Appointment');
 const moment = require('moment-timezone');
 
 require('dotenv').config({ path: './.env' });

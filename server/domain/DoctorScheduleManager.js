@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Schedule = require('../model/Schedule');
+const Schedule = require('../domain/model/Schedule');
 
 class DoctorScheduleManager {
     constructor(doctorId) {

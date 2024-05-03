@@ -5,18 +5,22 @@ import {Calendar, momentLocalizer} from "react-big-calendar";
 import moment from "moment";
 import React from "react";
 import ReactModal from "react-modal";
+import EventSlotAdapter from "../Adapters/EventSlotAdapter";
+import './EventCalendar.css';
 
 const localizer = momentLocalizer(moment);
 
 class EventCalendar extends React.Component {
     constructor(props) {
         super(props);
-        this.eventService = new EventService();
+        this.eventService = new EventService(props.baseUrl);
+        this.eventSlotAdapter = new EventSlotAdapter();
         
         this.state = {
             events: [],
             modalIsOpen: false,
             selectedEvent: null,
+            visibleRange: getCurrentWeekRange(),
         };
 
         this.messages = {
@@ -36,14 +40,26 @@ class EventCalendar extends React.Component {
     }
 
     componentDidMount() {
-        this.fetchEvents();
+        this.loadEvents();
     }
 
-    fetchEvents = async ({startTime, endTime} = getCurrentWeekRange()) => {
-        const events = await this.eventService.fetchEvents(startTime, endTime);
-        this.setState({ events: events });
+    loadEvents = async () => {
+        const {start, end} = this.state.visibleRange;
+        const events = await this.eventService.fetchEvents(start, end);
+        this.setState({ events: events }, () => this.scrollToFirstEvent());
     }
 
+    handleUpdateEvent = async (eventId, eventData) => {
+        await this.eventService.updateEvent(eventId, eventData);
+        await this.loadEvents();
+    }
+
+    handleAddEvent = async (eventData) => {
+        const slot = this.eventSlotAdapter.eventToSlot(eventData);
+        await this.eventService.addSlot(slot);
+        await this.loadEvents();
+    }
+    
     handleRangeChange = (range) => {
         if (Array.isArray(range)) {
             const start = range[0];
@@ -53,13 +69,24 @@ class EventCalendar extends React.Component {
             } else {
                 end = new Date(range[range.length - 1]);
             }
-            
-            this.fetchEvents({startTime: start, endTime: end});
-            return
-        }
 
-        this.fetchEvents({startTime: range.start, endTime: range.end});
+            this.setState({ visibleRange: { start, end } }, () => this.loadEvents());
+        } else {
+            this.setState({ visibleRange: {start: range.start, end: range.end}}, () => this.loadEvents());
+        }
     };
+
+    scrollToFirstEvent = () => {
+        // Поиск первого события в текущем видимом диапазоне
+        const firstEvent = this.state.events.reduce((earliest, current) => {
+            return current.start < earliest.start ? current : earliest;
+        }, this.state.events[0]);
+
+        // Обновление состояния для скроллинга к этому времени
+        if (firstEvent) {
+            this.setState({ scrollToTime: new Date(firstEvent.start) });
+        }
+    }
     
     handleSelectEvent = (event) => {
         this.setState({
@@ -93,15 +120,13 @@ class EventCalendar extends React.Component {
         }));
     }
 
-    handleDeleteEvent = (id) => {
-        this.setState(prevState => ({
-            events: prevState.events.filter(event => event.id !== id),
-            selectedEvent: null,
-        }));
+    handleDeleteEvent = async (eventId) => {
+        await this.eventService.deleteEvent(eventId);
+        await this.loadEvents();
         this.closeModal();
     }
 
-    handleSubmitChanges = (event) => {
+    handleSubmitChanges = async (event) => {
         event.preventDefault();
         const form = event.target;
         const eventData = {
@@ -115,16 +140,9 @@ class EventCalendar extends React.Component {
         };
 
         if (eventData.id !== undefined) {
-            const updatedEvent = this.eventService.updateEvent(eventData.id, eventData);
-            if (updatedEvent) {
-                const updatedEvents = this.state.events.map(ev => ev.id === updatedEvent.id ? updatedEvent : ev);
-                this.setState({ events: updatedEvents });
-            }
+            await this.handleUpdateEvent(eventData.id, eventData);
         } else {
-            const newEvent = this.eventService.addEvent(eventData);
-            this.setState(prevState => ({
-                events: [...prevState.events, newEvent]
-            }));
+            await this.handleAddEvent(eventData);
         }
         this.closeModal();
     }
@@ -143,6 +161,7 @@ class EventCalendar extends React.Component {
                     onSelectEvent={this.handleSelectEvent}
                     onSelectSlot={this.handleSelectSlot}
                     onRangeChange={this.handleRangeChange}
+                    scrollToTime={this.state.scrollToTime || new Date()}  // Установка времени для скроллинга
                     components={{
                         event: EventWrapper
                     }}
@@ -156,16 +175,16 @@ class EventCalendar extends React.Component {
                         contentLabel="Edit Appointment Slot"
                     >
                         <h2>{this.state.selectedEvent && this.state.selectedEvent.id !== undefined ? 'Редактировать слот' : 'Создать новый слот'}</h2>
-                        <form onSubmit={(e) => {this.handleSubmitChanges(e);
+                        <form className='doctor-dashboard-modal' onSubmit={(e) => {this.handleSubmitChanges(e);
                         }}>
-                            <input className={'.doctor-dashboard'} type="text" name="title" defaultValue={this.state.selectedEvent?.title}
-                                   placeholder="Название события или причина блокировки"/>
-                            <input className={'.doctor-dashboard'} type="datetime-local" name="start"
+                            <input type="text" name="title" defaultValue={this.state.selectedEvent?.title}
+                                   placeholder="ФИО пациента или причина блокировки"/>
+                            <input type="datetime-local" name="start"
                                    defaultValue={moment(this.state.selectedEvent?.start).format('YYYY-MM-DDTHH:mm')}/>
-                            <input className={'.doctor-dashboard'} type="datetime-local" name="end"
+                            <input type="datetime-local" name="end"
                                    defaultValue={moment(this.state.selectedEvent?.end).format('YYYY-MM-DDTHH:mm')}/>
-                            <input className={'.doctor-dashboard'} type="text" name="phone" defaultValue={this.state.selectedEvent?.phone} placeholder="Телефон"/>
-                            <input className={'.doctor-dashboard'} type="email" name="email" defaultValue={this.state.selectedEvent?.email} placeholder="Email"/>
+                            <input type="text" name="phone" defaultValue={this.state.selectedEvent?.phone} placeholder="Телефон"/>
+                            <input type="email" name="email" defaultValue={this.state.selectedEvent?.email} placeholder="Email"/>
                             <label>
                                 <input type="checkbox"
                                        name="isBlocked"
@@ -175,7 +194,10 @@ class EventCalendar extends React.Component {
                                 Блокировать
                             </label>
                             <button
-                                type="submit">{this.state.selectedEvent && this.state.selectedEvent.id !== undefined ? 'Сохранить изменения' : 'Добавить слот'}</button>
+                                type="submit"
+                            >
+                                {this.state.selectedEvent && this.state.selectedEvent.id !== undefined ? 'Сохранить изменения' : 'Добавить слот'}
+                            </button>
                         </form>
                         <button onClick={this.closeModal}>Отмена</button>
                         <button onClick={() => this.handleDeleteEvent(this.state.selectedEvent.id)}>Удалить</button>
@@ -197,10 +219,10 @@ function EventWrapper({ event }) {
 
 function getCurrentWeekRange() {
     const startOfWeek = new Date();
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay());
+    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
     const endOfWeek = new Date(startOfWeek);
     endOfWeek.setDate(endOfWeek.getDate() + 6);
-    return { startTime: startOfWeek, endTime: endOfWeek };
+    return { start: startOfWeek, end: endOfWeek };
 }
 
 export default EventCalendar;

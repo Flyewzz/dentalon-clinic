@@ -1,8 +1,7 @@
 class EventService {
-    constructor(apiUrl) {
-        this.apiUrl = apiUrl || 'http://localhost:5001/api/v1/appointments/slots'; // URL вашего API;
+    constructor(baseUrl) {
+        this.baseUrl = baseUrl; // URL вашего API;
         this.events = [];
-        console.log(this.events);
     }
 
     async fetchEvents(start, end, doctorId = 1) {
@@ -10,7 +9,9 @@ class EventService {
             start = start.toISOString();
             end = end.toISOString();
             console.log(start, end);
-            const response = await fetch(`${this.apiUrl}?startTime=${start}&endTime=${end}`);
+            const response = await fetch(
+                `${this.baseUrl}/appointments/slots?startTime=${start}&endTime=${end}`
+            );
             const data = await response.json();
             
             return data.map(app => ({
@@ -28,28 +29,33 @@ class EventService {
         }
     }
 
-    addEvent = (eventData) => {
-        const newEvent = { ...eventData, id: this.getNextId() };
-        this.events.push(newEvent);
-        return newEvent;
+    async addSlot(slotData)  {
+        const response = await fetch(`${this.baseUrl}/appointments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(slotData)
+        });
+        
+        return await response.json();
     };
 
-    updateEvent = (id, updates) => {
-        const eventIndex = this.events.findIndex(event => event.id === id);
-        if (eventIndex !== -1) {
-            this.events[eventIndex] = { ...this.events[eventIndex], ...updates };
-            return this.events[eventIndex];
-        }
-        return null;
-    };
+    async updateEvent(id, eventData) {
+        const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(eventData)
+        });
+        
+        return await response.json();
+    }
 
-    deleteEvent = (id) => {
-        this.events = this.events.filter(event => event.id !== id);
-    };
-
-    getNextId = () => {
-        return this.events.length ? Math.max(...this.events.map(e => e.id)) + 1 : 1;
-    };
+    async deleteEvent(id) {
+        const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
+            method: 'DELETE'
+        });
+        
+        return await response.json();
+    }
 }
 
 module.exports = EventService;
