@@ -1,4 +1,5 @@
 const Appointment = require("../domain/model/Appointment");
+const BlockAppointment = require("../domain/model/BlockAppointment");
 const moment = require('moment-timezone');
 
 class AppointmentManager {
@@ -6,19 +7,38 @@ class AppointmentManager {
         this.appointmentService = appointmentService;
     }
     
-    async getAppointments(req) {
-        const { startTime, endTime, doctorId = 1 } = req.query;
-        return await Appointment.find({
-            startTime: {$gte: new Date(startTime)},
-            endTime: {$lte: new Date(endTime)},
-            doctorId: doctorId,
-        });
+    async findAppointments(req) {
+        const { startTime, endTime, doctorId} = req.query;
+        return await this.appointmentService.findAppointments(startTime, endTime, doctorId);
     }
-    async bookAppointment(req) {
-        req.endTime = moment(req.startTime).clone().add(1, 'hour').toISOString();
+    
+    async bookAppointmentForPatient(req) {
+        const endTime = moment(req.startTime).clone().add(1, 'hour').toDate();
+
+        // Проверка на пересечение с блокировками
+        const isBlocked = await this.checkForBlocks(req.startTime, endTime, req.doctorId);
+        if (isBlocked) {
+            throw new BusinessError('This time slot is blocked and cannot be booked.');
+        }
+
+        req.endTime = endTime;
         return await this.appointmentService.addAppointment(req);
     }
 
+    async bookAppointmentForDoctor(req) {
+        const endTime = moment(req.startTime).clone().add(1, 'hour').toDate();
+
+        // Проверка на пересечение с уже существующими бронями
+        const existingAppointments = await this.appointmentService.findAppointments(req.startTime, endTime, req.doctorId);
+        if (existingAppointments.length > 0) {
+            // Логика предоставления выбора врачу: отмена, перенос или сохранение текущих броней
+        }
+
+        req.endTime = endTime.toISOString();
+        return await this.appointmentService.addAppointment(req);
+    }
+
+    
     async cancelAppointment(appointmentId) {
         return await this.appointmentService.deleteAppointment(appointmentId)
     }
@@ -36,6 +56,18 @@ class AppointmentManager {
         
         return await this.appointmentService.updateAppointment(appointmentId, update);
     }
+
+    async checkForBlocks(startTime, endTime, doctorId) {
+        const blocks = await BlockAppointment.find({
+            doctorId,
+            $or: [
+                { startTime: { $lt: endTime }, endTime: { $gt: startTime } },
+                { endTime: { $gt: startTime }, startTime: { $lt: endTime } }
+            ]
+        }).lean();
+        return blocks.length > 0;
+    }
+
 }
 
 module.exports = AppointmentManager;

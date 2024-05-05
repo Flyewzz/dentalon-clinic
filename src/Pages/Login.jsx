@@ -35,7 +35,7 @@ const Login = () => {
       toast.error('Password is required', toastOptions);
       return false;
     } else if (email === '') {
-      toast.error('email and Password is required', toastOptions);
+      toast.error('email and password is required', toastOptions);
       return false;
     }
     return true;
@@ -63,14 +63,18 @@ const Login = () => {
       if (data) {
         setLoader('none');
       }
-      console.log(data);
 
-      if (data.status === false) {
-        toast.error(data.msg, toastOptions);
-      }
-      if (data.message === 'Login Successfully') {
-        localStorage.setItem('chat-app-user', data);
-        navigate('/dental-clinic/user/chat_section');
+      if (res.status !== 201) {
+        toast.error(data.message, toastOptions);
+      } else {
+        // Сохраняем полученные токены в localStorage или sessionStorage
+        localStorage.setItem('accessToken', res.headers.get('X-Access-Token'));
+        localStorage.setItem('refreshToken', res.headers.get('X-Refresh-Token'));
+        toast.error('Вы успешно вошли в систему', toastOptions);
+        // Задержка перед редиректом
+        setTimeout(() => {
+          navigate("/");
+        }, 1500);  // Задержка в 1500 миллисекунд (1.5 секунды)
       }
     }
   };
@@ -103,7 +107,7 @@ const Login = () => {
               <Spinner id="login_loder" style={loader} />
             </button>
             <span className="lower_title_login">
-              Don't have an account ?
+              Don't have an account?
               <HashLink to={'/register'}>Register</HashLink>
             </span>
           </form>

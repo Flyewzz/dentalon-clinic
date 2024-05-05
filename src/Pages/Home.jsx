@@ -3,6 +3,7 @@ import "./Home.css";
 import "font-awesome/css/font-awesome.min.css";
 import slider_one from "../Pages/images/slide_one.png";
 import { HashLink } from "react-router-hash-link";
+import {ToastContainer} from "react-toastify";
 
 const Home = () => {
   return (
@@ -91,6 +92,7 @@ const Home = () => {
             </div>
           </div>
         </div>
+        <ToastContainer />
       </section>
     </>
   );

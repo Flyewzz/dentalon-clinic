@@ -16,6 +16,18 @@ class AppointmentService {
         }
     }
 
+    async findAppointments(startTime, endTime, doctorId = 1) {
+        try {
+            return await Appointment.find({
+                startTime: {$gte: new Date(startTime)},
+                endTime: {$lte: new Date(endTime)},
+                doctorId: doctorId,
+            });
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     async addAppointment(req) {
         try {
             const appointment = new Appointment(req);

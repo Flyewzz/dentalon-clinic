@@ -7,6 +7,7 @@ import React from "react";
 import ReactModal from "react-modal";
 import EventSlotAdapter from "../Adapters/EventSlotAdapter";
 import './EventCalendar.css';
+import WordIcon from '../assets/word.png'
 
 const localizer = momentLocalizer(moment);
 
@@ -15,6 +16,7 @@ class EventCalendar extends React.Component {
         super(props);
         this.eventService = new EventService(props.baseUrl);
         this.eventSlotAdapter = new EventSlotAdapter();
+        this.baseUrl = props.baseUrl;
         
         this.state = {
             events: [],
@@ -175,7 +177,8 @@ class EventCalendar extends React.Component {
                         contentLabel="Edit Appointment Slot"
                     >
                         <h2>{this.state.selectedEvent && this.state.selectedEvent.id !== undefined ? 'Редактировать слот' : 'Создать новый слот'}</h2>
-                        <form className='doctor-dashboard-modal' onSubmit={(e) => {this.handleSubmitChanges(e);
+                        <form className='doctor-dashboard-modal' onSubmit={(e) => {
+                            this.handleSubmitChanges(e);
                         }}>
                             <input type="text" name="title" defaultValue={this.state.selectedEvent?.title}
                                    placeholder="ФИО пациента или причина блокировки"/>
@@ -183,8 +186,10 @@ class EventCalendar extends React.Component {
                                    defaultValue={moment(this.state.selectedEvent?.start).format('YYYY-MM-DDTHH:mm')}/>
                             <input type="datetime-local" name="end"
                                    defaultValue={moment(this.state.selectedEvent?.end).format('YYYY-MM-DDTHH:mm')}/>
-                            <input type="text" name="phone" defaultValue={this.state.selectedEvent?.phone} placeholder="Телефон"/>
-                            <input type="email" name="email" defaultValue={this.state.selectedEvent?.email} placeholder="Email"/>
+                            <input type="text" name="phone" defaultValue={this.state.selectedEvent?.phone}
+                                   placeholder="Телефон"/>
+                            <input type="email" name="email" defaultValue={this.state.selectedEvent?.email}
+                                   placeholder="Email"/>
                             <label>
                                 <input type="checkbox"
                                        name="isBlocked"
@@ -193,6 +198,30 @@ class EventCalendar extends React.Component {
                                 />
                                 Блокировать
                             </label>
+                            { this.state.selectedEvent && this.state.selectedEvent.id !== undefined &&
+                                <div>
+                                    <h3 className="download-section-title">Документы для скачивания:</h3>
+                                    <div className="document-section">
+                                        <a href={`${this.baseUrl}/contracts/slots/${this.state.selectedEvent.id}?docName=1`}
+                                           className="download-link" download>
+                                            <img src={WordIcon} alt="Download" width="32" height="32"/>
+                                            Договор лечения
+                                        </a>
+                                        <a href={`${this.baseUrl}/contracts/slots/${this.state.selectedEvent.id}?docName=2`}
+                                           className="download-link" download>
+                                            <img src={WordIcon} alt="Download" width="32" height="32"/>
+                                            Договор ортопедического лечения
+                                        </a>
+                                    </div>
+                                    <button onClick={() => {
+                                        downloadFile(`${this.baseUrl}/contracts/slots/${this.state.selectedEvent.id}?docName=1`, 'Договор_лечения.docx');
+                                        downloadFile(`${this.baseUrl}/contracts/slots/${this.state.selectedEvent.id}?docName=2`, 'Договор_ортопедического_лечения.docx');
+                                    }}>
+                                        Скачать все
+                                    </button>
+
+                                </div>
+                            }
                             <button
                                 type="submit"
                             >
@@ -208,10 +237,30 @@ class EventCalendar extends React.Component {
     }
 }
 
-function EventWrapper({ event }) {
+const downloadFile = async (url, filename) => {
+    try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Network response was not ok');
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = downloadUrl;
+        link.download = filename;
+        link.click();
+
+        // Очистка после скачивания
+        window.URL.revokeObjectURL(downloadUrl);
+        link.remove();
+    } catch (error) {
+        console.error('Error downloading the file:', error);
+    }
+}
+
+function EventWrapper({event}) {
     // Компонент для отображения каждого события в календаре
     return (
-        <div style={{ background: event.isBlocked ? 'red' : 'green', padding: '5px' }}>
+        <div style={{background: event.isBlocked ? 'red' : 'green', padding: '5px'}}>
             {event.title}
         </div>
     );

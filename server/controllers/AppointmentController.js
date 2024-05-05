@@ -9,18 +9,18 @@ const appointmentManager = new AppointmentManager(appointmentService);
 // Предполагаем, что SlotManager правильно инициализирован и готов к использованию
 const slotManager = new SlotManager(1); // ID врача пока статичен
 
-exports.getAppointments = async (req, res) => {
+exports.findAppointments = async (req, res) => {
     try {
-        const appointment = await appointmentManager.getAppointments(req);
-        res.status(200).json(appointment);
+        const appointments = await appointmentManager.findAppointments(req);
+        res.status(200).json(appointments);
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(error.statusCode || 500).json({ message: error.message });
     }
 }
 
-exports.createAppointment = async (req, res) => {
+exports.bookAppointment = async (req, res) => {
     try {
-        const appointment = await appointmentManager.bookAppointment(req.body);
+        const appointment = await appointmentManager.bookAppointmentForPatient(req.body);
         res.status(201).json(appointment);
     } catch (error) {
         res.status(error.statusCode || 500).json({ message: error.message });

@@ -15,6 +15,7 @@ import UserProfile from './Pages/UserProfile';
 import ApBooking from './Components/ApBooking';
 import Dashboard from './Pages/PagesData/Admin/Dashboard';
 import DoctorDashboard from "./Pages/DoctorDashboard";
+import ProtectedRoute from "./Utils/ProtectedRoute";
 
 // require('dotenv').config()
 
@@ -67,7 +68,9 @@ const App = () => {
           path="/dental-clinic/admin-person"
           element={<Dashboard />}
         />
-        <Route exact path="/dental-clinic/doctor-dashboard" element={<DoctorDashboard />} />
+        <Route exact path="/dental-clinic/doctor-dashboard" element={
+          <ProtectedRoute><DoctorDashboard /></ProtectedRoute>
+        } />
       </Routes>
     </>
   );

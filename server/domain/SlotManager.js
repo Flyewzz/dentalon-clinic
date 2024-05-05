@@ -1,6 +1,6 @@
 const DoctorScheduleManager = require('./DoctorScheduleManager');
-const AppointmentManager = require('./AppointmentManager');
-const Appointment = require('../domain/model/Appointment')
+const Appointment = require('../domain/model/Appointment');
+const BlockAppointment = require('../domain/model/BlockAppointment'); // Подключаем модель блокировок
 const moment = require('moment-timezone');
 
 class SlotManager {
@@ -45,10 +45,22 @@ class SlotManager {
             doctorId: 1,
         }).lean(); // Преобразование в JS объекты для уменьшения нагрузки
 
-        // Фильтрация слотов на стороне сервера
-        return slots.filter(slot => !busySlots.some(busy =>
-            (busy.startTime < slot.endTime && busy.endTime > slot.startTime)
-        ));
+        const blocks = await BlockAppointment.find({
+            doctorId: 1,
+            $and: [
+                { startTime: { $lte: endTime } },
+                { endTime: { $gte: startTime } }
+            ],
+        }).lean(); // Получаем активные блокировки
+
+        // Фильтрация слотов на стороне сервера с учетом блокировок
+        return slots.filter(slot => {
+            return !busySlots.some(busy =>
+                (busy.startTime < slot.endTime && busy.endTime > slot.startTime)
+            ) && !blocks.some(block =>
+                (block.startTime < slot.endTime && block.endTime > slot.startTime)
+            );
+        });
     }
 }
 

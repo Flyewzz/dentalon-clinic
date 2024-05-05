@@ -147,3 +147,33 @@
 .doctor-dashboard-modal input[type="checkbox"] {
     margin-right: 5px;
 }
+
+.document-section {
+    background-color: white;    /* Установка белого фона */
+    border: 1px solid #ddd;     /* Светлая рамка для менее выраженной объёмности */
+    padding: 10px;              /* Меньше внутреннего пространства */
+    margin-top: 5px;            /* Отступ сверху для разделения с заголовком */
+    border-radius: 4px;         /* Немного скруглённые углы */
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Более лёгкая тень */
+}
+
+.download-section-title {
+    font-size: 16px;            /* Размер шрифта для заголовка */
+    margin-top: 20px;           /* Отступ от предыдущих элементов */
+    margin-bottom: 5px;         /* Маленький отступ перед контейнером документов */
+}
+
+.download-link {
+    display: flex;
+    align-items: center;
+    gap: 8px;                   /* Меньшее расстояние между иконкой и текстом */
+    color: #0056b3;             /* Синий цвет ссылок для лучшей видимости */
+    text-decoration: none;
+    margin-bottom: 5px;         /* Отступ между ссылками */
+}
+
+.download-link:hover {
+    background-color: #f8f8f8; /* Светло-серый фон при наведении */
+    border-radius: 4px;        /* Скругление углов фона при наведении */
+}
+

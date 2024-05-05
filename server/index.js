@@ -2,13 +2,15 @@ const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-const User = require('./domain/model/userModel');
+const User = require('./domain/model/User');
 const appointmentRoutes = require('./routes/appointmentRoutes'); // Подключение новых маршрутов бронирований
 const ContractManager = require('./domain/ContractManager');
 const Appointment = require('./domain/model/Appointment');
 const moment = require('moment-timezone');
+const TokenService = require('./services/TokenService');
+const { authenticated, authenticatedDoctor } = require('./middleware/authenticate');
 
-require('dotenv').config({ path: './.env' });
+require('dotenv').config();
 
 const app = express();
 app.use(cors());
@@ -25,6 +27,11 @@ mongoose
   .catch((err) => {
     console.log(err.message);
   });
+
+const tokenService = new TokenService({
+  jwt_secret: process.env.JWT_SECRET,
+  refresh_token_secret: process.env.JWT_REFRESH_SECRET,
+})
 
 app.get('/', (req, res) => {
   res.json({ message: 'Hello from server!' });
@@ -56,7 +63,9 @@ app.get('/api/v1/contracts/slots/:id', async (req, res) => {
       yearOfDate: currentDate.format('YYYY').toString() // Год
     };
 
-    const contractPath = "../controllers/Договор лечения обновленный 2017 — копия.docx";
+    const docType = req.query.docName === '1' ? 'Договор лечения' : 
+        'Договор ортопедического лечения';
+    const contractPath = `../controllers/${docType}.docx`;
     const docBuffer = contractManager.buildContract(contractPath, {
       contractNumber: '1935',
       ...formattedDate,
@@ -65,10 +74,10 @@ app.get('/api/v1/contracts/slots/:id', async (req, res) => {
       patientPhoneNumber: appointmentData.phone,
     });
 
-    const fileName = `Договор лечения ${appointmentData.name}.docx`;
+    const fileName = `${appointmentData.name}.docx`;
     
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(fileName)}`);
+    res.setHeader('Content-Disposition', `attachment; filename*=UTF-8''${encodeURIComponent(docType+' '+fileName)}`);
     res.setHeader('Content-Length', docBuffer.length);
 
     res.send(docBuffer);
@@ -80,12 +89,18 @@ app.get('/api/v1/contracts/slots/:id', async (req, res) => {
 
 
 
+// Эндпоинт для обновления токенов
+app.post('/refresh-token', async (req, res) => {
+  const { refreshToken } = req.body;
+  const tokens = await refreshAccessToken(refreshToken);
+  if (!tokens) {
+    return res.status(403).json({ message: "Invalid or expired refresh token" });
+  }
 
-
-
-
-
-
+  res.setHeader('x-access-token', tokens.accessToken);
+  res.setHeader('x-refresh-token', tokens.refreshToken);
+  res.json({ message: "Token refreshed successfully" });
+});
 
 app.post('/register', async (req, res) => {
   console.log(req.body);
@@ -98,6 +113,7 @@ app.post('/register', async (req, res) => {
     if (userExist) {
       return res.status(401).json({ error: 'Email already Exist' });
     }
+    
     const user = new User({
       name: req.body.name,
       email: req.body.email,
@@ -115,46 +131,37 @@ app.post('/register', async (req, res) => {
 });
 
 app.post('/login_user', async (req, res) => {
-  console.log(req.body);
-
   try {
-    const user = await User.findOne({ email: req.body.email });
-
-    if (!user)
-      return res.json({ msg: 'Incorrect Email or Password', status: false });
-
-    const isPasswordValid = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
-
-    if (!isPasswordValid)
-      return res.json({ msg: 'Incorrect Password', status: false });
-
-    delete user.password;
-    if (user && isPasswordValid) {
-      return res.status(201).json({ message: 'Login Successfully' });
+    const user = await User.findOne({ email: req.body.email }).select('+password').lean();
+    user._id = user._id.toString();
+    if (!user || !await bcrypt.compare(req.body.password, user.password)) {
+      return res.status(401).json({ message: 'Incorrect Email or Password' });
     }
-  } catch (err) {
-    console.log(err);
+
+    const { accessToken, refreshToken } = await tokenService.generateNewTokens(user, req.ip);
+    res.setHeader('Access-Control-Expose-Headers', 'X-Access-Token, X-Refresh-Token');
+    res.setHeader('X-Access-Token', accessToken);
+    res.setHeader('X-Refresh-Token', refreshToken);
+    res.status(201).json({ message: 'Login Successfully', userId: user._id, role: user.role });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: 'Server Error' });
   }
 });
 
-app.get('/dental-clinic/user/profile', async (req, res) => {
+
+
+app.get('/dental-clinic/user/profile', authenticatedDoctor(tokenService), async (req, res) => {
   // try {
   //   const Appointment_info = await appointment_info.find();
   //   res.send(Appointment_info);
   // } catch (err) {
   //   console.log(err);
   // }
+  res.json(req.user);
 });
 
-app.get('/dental-clinic/admin-person', async (req, res) => {});
-
-// app.use((req, res) => {
-//   res.status(404).send('Page not Found');
-// });
-
 app.listen(process.env.PORT, () => {
+  // console.log(require('crypto').randomBytes(32).toString('hex'));
   console.log(`Server Started on Port ${process.env.PORT}`);
 });

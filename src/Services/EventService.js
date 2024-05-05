@@ -4,13 +4,23 @@ class EventService {
         this.events = [];
     }
 
+    getToken() {
+        return localStorage.getItem('accessToken');  // Получаем токен из localStorage
+    }
+    
     async fetchEvents(start, end, doctorId = 1) {
+        const token = this.getToken();
         try {
             start = start.toISOString();
             end = end.toISOString();
             console.log(start, end);
             const response = await fetch(
-                `${this.baseUrl}/appointments/slots?startTime=${start}&endTime=${end}`
+                `${this.baseUrl}/appointments/slots?startTime=${start}&endTime=${end}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
             );
             const data = await response.json();
             
@@ -30,9 +40,13 @@ class EventService {
     }
 
     async addSlot(slotData)  {
+        const token = this.getToken();
         const response = await fetch(`${this.baseUrl}/appointments`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify(slotData)
         });
         
@@ -40,9 +54,13 @@ class EventService {
     };
 
     async updateEvent(id, eventData) {
+        const token = this.getToken();
         const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
             method: 'PUT',
-            headers: { 'Content-Type': 'application/json' },
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json' 
+            },
             body: JSON.stringify(eventData)
         });
         
@@ -50,8 +68,12 @@ class EventService {
     }
 
     async deleteEvent(id) {
+        const token = this.getToken();
         const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
-            method: 'DELETE'
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+            }
         });
         
         return await response.json();
