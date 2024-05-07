@@ -1,16 +1,12 @@
-import React, {useEffect, useState} from 'react';
+import React, {useState} from 'react';
 import logo_img from './images/logo.png';
 import { HashLink } from 'react-router-hash-link';
 import 'font-awesome/css/font-awesome.min.css';
 import './Navbar.css';
+import {useAuth} from "../Utils/Auth";
 const Navbar = () => {
   const [isActive, setActive] = useState(false);
-  const [isAuthenticated, setAuthenticated] = useState(false);
-
-  useEffect(() => {
-    const token = localStorage.getItem('accessToken');
-    setAuthenticated(!!token);  // Если токен есть, пользователь считается аутентифицированным
-  }, []);
+  const { isAuthenticated, logout } = useAuth();
   
   const handleClick = () => {
     setActive(!isActive);
@@ -21,9 +17,7 @@ const Navbar = () => {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    setAuthenticated(false);
+    logout();
     closeMobileMenu();
   };
   

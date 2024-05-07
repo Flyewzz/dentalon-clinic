@@ -6,7 +6,11 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import './Login.css';
 import Spinner from '../Components/Spinner';
+import {useAuth} from "../Utils/Auth";
+
 const Login = (props) => {
+  const { login } = useAuth();
+  
   let oldUrl = props.baseUrl;
   let newUrl = oldUrl.replace("/api/v1", "");
 
@@ -70,8 +74,9 @@ const Login = (props) => {
         toast.error(data.message, toastOptions);
       } else {
         // Сохраняем полученные токены в localStorage или sessionStorage
-        localStorage.setItem('accessToken', res.headers.get('X-Access-Token'));
-        localStorage.setItem('refreshToken', res.headers.get('X-Refresh-Token'));
+        const accessToken = res.headers.get('X-Access-Token');
+        const refreshToken = res.headers.get('X-Refresh-Token');
+        login({accessToken, refreshToken});
         toast.success('Вы успешно вошли в систему', toastOptions);
         // Задержка перед редиректом
         setTimeout(() => {
