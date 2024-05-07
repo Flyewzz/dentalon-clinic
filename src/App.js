@@ -8,7 +8,7 @@ import Appointment from './Pages/Appointment';
 import Services from './Pages/Services';
 import Contact from './Pages/Contact';
 import Login from './Pages/Login';
-// import Register from './Pages/Register';
+import Register from './Pages/Register';
 import BookingHours from './Pages/BookingHours';
 import Profile from './Pages/Profile';
 import UserProfile from './Pages/UserProfile';
@@ -41,9 +41,9 @@ const App = () => {
           path="/dental-clinic/appointment"
           element={<Appointment />}
         />
-        {/* <Route exact path="/dental-clinic/treatments" element={} /> */}
-        {/* <Route exact path="/dental-clinic/contact" element={} /> */}
-        {/*<Route exact path="/register" element={<Register />} />*/}
+        <Route exact path="/dental-clinic/treatments"/> 
+        <Route exact path="/dental-clinic/contact"/> 
+        <Route exact path="/register" element={<Register />} />
         <Route exact path="/dental-clinic/team" element={<Profile />} />
         <Route exact path="/login_user" element={<Login baseUrl={process.env.REACT_APP_SERVER_BASE_URL} />} />
         <Route
