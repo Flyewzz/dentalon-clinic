@@ -52,10 +52,17 @@ const Navbar = () => {
               Услуги
             </HashLink>
           </div>
+          {/*{ !isAuthenticated &&*/}
+          {/*<div className="MenuItems">*/}
+          {/*  <HashLink to="/register" onClick={closeMobileMenu}>*/}
+          {/*    Регистрация*/}
+          {/*  </HashLink>*/}
+          {/*</div>*/}
+          {/*}*/}
           { !isAuthenticated &&
           <div className="MenuItems">
-            <HashLink to="/register" onClick={closeMobileMenu}>
-              Регистрация
+            <HashLink to="/login_user" onClick={closeMobileMenu}>
+              Войти
             </HashLink>
           </div>
           }
@@ -69,7 +76,7 @@ const Navbar = () => {
                   <>
                     <div className="MenuItems">
                       <HashLink to="/dental-clinic/doctor-dashboard" onClick={closeMobileMenu}>
-                        Мой профиль
+                        Профиль
                       </HashLink>
                     </div>
                     <div className="MenuItems">

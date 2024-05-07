@@ -43,8 +43,8 @@ class SlotManager {
         // Фильтрация уже забронированных слотов
         const busySlots = await Appointment.find({
             $and: [
-                { startTime: { $gte: startTime } },
-                { endTime: { $lte: endTime } }
+                { startTime: { $lt: endTime } },
+                { endTime: { $gt: startTime } }
             ],
             doctorId: 1,
         }).lean(); // Преобразование в JS объекты для уменьшения нагрузки
@@ -52,8 +52,8 @@ class SlotManager {
         const blocks = await BlockAppointment.find({
             doctorId: 1,
             $and: [
-                { startTime: { $lte: endTime } },
-                { endTime: { $gte: startTime } }
+                { startTime: { $lt: endTime } },
+                { endTime: { $gt: startTime } }
             ],
         }).lean(); // Получаем активные блокировки
 

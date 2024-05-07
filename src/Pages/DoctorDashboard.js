@@ -6,11 +6,11 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 
 ReactModal.setAppElement('#root');
 
-const DoctorDashboard = () => {
+const DoctorDashboard = (props) => {
     return (
         <div>
             <h1>Личный кабинет врача</h1>
-            <EventCalendar baseUrl='http://localhost:5001/api/v1' />
+            <EventCalendar baseUrl={props.baseUrl} />
         </div>
     );
 };

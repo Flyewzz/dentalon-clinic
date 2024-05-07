@@ -4,7 +4,7 @@ function UserProfile() {
   const [apiData, setApiData] = useState('');
 
   useEffect(() => {
-    const url = "http://localhost:5001/dental-clinic/user/profile";
+    const url = "http://192.168.10.16:5001/dental-clinic/user/profile";
 
     const getDatas = async () => {
       const response = await fetch(url, {

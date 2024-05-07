@@ -8,7 +8,7 @@ import Appointment from './Pages/Appointment';
 import Services from './Pages/Services';
 import Contact from './Pages/Contact';
 import Login from './Pages/Login';
-import Register from './Pages/Register';
+// import Register from './Pages/Register';
 import BookingHours from './Pages/BookingHours';
 import Profile from './Pages/Profile';
 import UserProfile from './Pages/UserProfile';
@@ -17,18 +17,7 @@ import Dashboard from './Pages/PagesData/Admin/Dashboard';
 import DoctorDashboard from "./Pages/DoctorDashboard";
 import ProtectedRoute from "./Utils/ProtectedRoute";
 
-// require('dotenv').config()
-
 const App = () => {
-  // const [currentUser, setCurrentUser] = useState(undefined);
-
-  // useEffect(() => {
-  //   if (localStorage.getItem('chat-app-user')) {
-  //   } else {
-  //     setCurrentUser(JSON.parse(localStorage.getItem('chat-app-user')));
-  //   }
-  // }, []);
-
   return (
     <>
       <Navbar />
@@ -54,22 +43,22 @@ const App = () => {
         />
         {/* <Route exact path="/dental-clinic/treatments" element={} /> */}
         {/* <Route exact path="/dental-clinic/contact" element={} /> */}
-        <Route exact path="/register" element={<Register />} />
+        {/*<Route exact path="/register" element={<Register />} />*/}
         <Route exact path="/dental-clinic/team" element={<Profile />} />
-        <Route exact path="/login_user" element={<Login />} />
+        <Route exact path="/login_user" element={<Login baseUrl={process.env.REACT_APP_SERVER_BASE_URL} />} />
         <Route
           exact
           path="/dental-clinic/user/profile"
           element={<UserProfile />}
         />
-        <Route exact path="/dental-clinic/slot" element={<BookingHours apiBaseUrl='http://localhost:5001/api/v1' />} />
+        <Route exact path="/dental-clinic/slot" element={<BookingHours apiBaseUrl={process.env.REACT_APP_SERVER_BASE_URL} />} />
         <Route
           exact
           path="/dental-clinic/admin-person"
           element={<Dashboard />}
         />
         <Route exact path="/dental-clinic/doctor-dashboard" element={
-          <ProtectedRoute><DoctorDashboard /></ProtectedRoute>
+          <ProtectedRoute><DoctorDashboard baseUrl={process.env.REACT_APP_SERVER_BASE_URL} /></ProtectedRoute>
         } />
       </Routes>
     </>

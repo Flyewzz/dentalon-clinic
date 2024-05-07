@@ -20,8 +20,6 @@ const BookingHours = (props) => {
     startTime: '',
   });
   const [btn, setBtn] = useState(0);
-  const [aces, setACES] = useState(-1);
-  const [ace, setACE] = useState(-1);
   const [slots, setSlots] = useState([]);
 
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
@@ -161,7 +159,7 @@ const BookingHours = (props) => {
 
           setTimeout(() => {
             navigate('/');
-          }, 4000);
+          }, 2000);
         } else if (res.status === 401) {
           const data = await res.json();
           toast.error(data.message, toastOptions);
