@@ -8,7 +8,7 @@ class SlotManager {
         this.doctorScheduleManager = new DoctorScheduleManager(doctorId);
     }
 
-    async generateSlots(date, timezone = 'Asia/Yerevan') {
+    async generateSlots(date, slotType = 'consultation', timezone = 'Asia/Yerevan') {
         const dayOfWeek = moment(date).day();
         const schedule = await this.doctorScheduleManager.getSchedule();
 
@@ -24,18 +24,22 @@ class SlotManager {
         let slots = [];
         let startTime = moment(`${date}T${workHours.startTime}`);
         let endTime = moment(`${date}T${workHours.endTime}`);
-        let currentTime = startTime;
-
-        while (currentTime.isBefore(endTime)) {
-            let endTimeSlot = currentTime.clone().add(1, 'hour'); // Добавляем 1 час
-
-            slots.push({
-                startTime: currentTime.toDate(),
-                endTime: endTimeSlot.toDate()
-            });
-            currentTime = endTimeSlot;
+        let currentTime = startTime.clone();
+        let duration = (slotType === 'consultation' ? 15 : 45);  // Продолжительность зависит от типа слота
+        if (slotType === 'consultation') {
+            currentTime.add(45, 'minutes');
         }
         
+        while (currentTime.isBefore(endTime)) {
+            let endTimeSlot = currentTime.clone().add(duration, 'minutes');
+                slots.push({
+                    startTime: currentTime.toDate(),
+                    endTime: endTimeSlot.toDate(),
+                });
+
+            currentTime.add(60, 'minutes');  // Продвигаем currentTime на час
+        }
+
         // Фильтрация уже забронированных слотов
         const busySlots = await Appointment.find({
             $and: [

@@ -62,7 +62,7 @@ const App = () => {
           path="/dental-clinic/user/profile"
           element={<UserProfile />}
         />
-        <Route exact path="/dental-clinic/slot" element={<BookingHours />} />
+        <Route exact path="/dental-clinic/slot" element={<BookingHours apiBaseUrl='http://localhost:5001/api/v1' />} />
         <Route
           exact
           path="/dental-clinic/admin-person"

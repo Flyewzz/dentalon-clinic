@@ -13,7 +13,8 @@ class AppointmentManager {
     }
     
     async bookAppointmentForPatient(req) {
-        const endTime = moment(req.startTime).clone().add(1, 'hour').toDate();
+        const duration = req.type === 'consultation' ? 15 : 45;
+        const endTime = moment(req.startTime).clone().add(duration, 'minutes').toDate();
 
         // Проверка на пересечение с блокировками
         const isBlocked = await this.checkForBlocks(req.startTime, endTime, req.doctorId);

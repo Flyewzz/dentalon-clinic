@@ -5,8 +5,9 @@ import './BookingHours.css';
 import {useNavigate} from 'react-router-dom';
 import Spinner from '../Components/Spinner';
 
-const BookingHours = () => {
-  const url = 'http://localhost:5001/api/v1/appointments';
+const BookingHours = (props) => {
+  const apiBaseUrl = props.apiBaseUrl;
+  const url = `${apiBaseUrl}/appointments`;
   const navigate = useNavigate();
   const [date, setDate] = useState('');
   
@@ -24,6 +25,7 @@ const BookingHours = () => {
   const [slots, setSlots] = useState([]);
 
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
+  const [selectedType, setSelectedType] = useState('consultation'); // По умолчанию устанавливаем консультацию
 
   function formatTimeSlot(dateString) {
     const date = new Date(dateString);
@@ -42,9 +44,9 @@ const BookingHours = () => {
       if (!date) return;
 
       try {
-        const response = await fetch(`http://192.168.10.16:5001/api/v1/appointments/${date}`);
+        const response = await fetch(`${apiBaseUrl}/appointments?date=${date}&type=${selectedType}`);
         const data = await response.json();
-        console.log(data);
+        
         setSlots(data); // Обновление слотов
         setSelectedSlotIndex(null); // Сброс выбранного слота
       } catch (error) {
@@ -53,7 +55,7 @@ const BookingHours = () => {
     }
 
     fetchSlots();
-  }, [date]);
+  }, [selectedType, date, apiBaseUrl]);
   
   const toastOptions = {
     position: 'top-right',
@@ -134,9 +136,8 @@ const BookingHours = () => {
       email,
       phone,
       startTime,
+      type: selectedType, 
     };
-
-    console.log(requestOptions);
 
     if (handleValidation()) {
       setBtn(1);
@@ -198,11 +199,18 @@ const BookingHours = () => {
                       <h1>Денталон</h1>
                     </div>
                     <div className="in__container">
+                      <label htmlFor="type">Тип слота:</label>
+                      <select id="type" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
+                        <option value="consultation">Консультация</option>
+                        <option value="treatment">Лечение</option>
+                      </select>
+                    </div>
+                    <div className="in__container">
                       <label>Выберите дату записи</label>
                       <input
-                        type="date"
-                        name="date"
-                        style={{ color: 'White' }}
+                          type="date"
+                          name="date"
+                          style={{color: 'White' }}
                         value={date}
                         defaultValue= { getCurrentDate() }
                         min={ getCurrentDate() }
@@ -251,7 +259,7 @@ const BookingHours = () => {
                         value={activeUser.phone}
                         onChange={handleInputs}
                         onKeyPress={(event) => {
-                          if (event.target.value.length >= 10) {
+                          if (event.target.value.length >= 15) {
                             event.preventDefault();
                           }
                         }}

@@ -46,10 +46,10 @@ exports.updateAppointment = async (req, res) => {
 };
 
 exports.getSlots = async (req, res) => {
-    const { date } = req.params;  // Принимаем дату через параметры запроса
+    const { date, type } = req.query;  // Принимаем дату через параметры запроса
 
     try {
-        const availableSlots = await slotManager.generateSlots(date);
+        const availableSlots = await slotManager.generateSlots(date, type);
         res.status(200).json(availableSlots);
     } catch (error) {
         console.error('Error fetching available slots:', error);

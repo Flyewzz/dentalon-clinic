@@ -17,7 +17,7 @@
   color: #6a6a6a !important;
 }
 
-.booking_section_container input {
+.booking_section_container input, .booking_section_container select {
   background: transparent;
   color: white;
 }
@@ -180,7 +180,7 @@ input[type='date']::-webkit-calendar-picker-indicator {
   flex-direction: column;
   gap: 2rem;
   padding: 3rem 5rem;
-  height: 573px;
+  height: max-content;
   border-radius: 0;
   background: #5f606121;
   border-bottom: 7px solid white;
@@ -207,7 +207,7 @@ form {
   border-radius: 0.4rem;
   font-weight: 600;
 }
-.form_for_booking input {
+.form_for_booking input, .form_for_booking select {
   padding: 1rem;
   border: none;
   color: #6a6a6a !important;
