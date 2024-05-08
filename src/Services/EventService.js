@@ -49,6 +49,7 @@ class EventService {
                 phone: app.phone,
                 email: app.email || '',
                 isBlocked: false,
+                type: app.type,
             }));
         } catch (error) {
             console.error('Error fetching events:', error);

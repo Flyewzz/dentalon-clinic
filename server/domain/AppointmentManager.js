@@ -48,10 +48,8 @@ class AppointmentManager {
         // Удаляем дату из обновлений, если она есть
         delete update.date;
 
-        update.startTime = new Date(update.start);
-        update.endTime = new Date(update.end);
-        delete update.start;
-        delete update.end;
+        update.startTime = new Date(update.startTime);
+        update.endTime = new Date(update.endTime);
         
         return await this.appointmentService.updateAppointment(appointmentId, update);
     }
