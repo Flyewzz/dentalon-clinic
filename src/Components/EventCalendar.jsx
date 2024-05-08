@@ -52,7 +52,8 @@ class EventCalendar extends React.Component {
     }
 
     handleUpdateEvent = async (eventId, eventData) => {
-        await this.eventService.updateEvent(eventId, eventData);
+        const slot = this.eventSlotAdapter.eventToSlot(eventData);
+        await this.eventService.updateEvent(eventId, slot);
         await this.loadEvents();
     }
 
@@ -77,6 +78,16 @@ class EventCalendar extends React.Component {
             this.setState({ visibleRange: {start: range.start, end: range.end}}, () => this.loadEvents());
         }
     };
+
+    handleSlotTypeChange = (event) => {
+        const { name, value } = event.target;
+        this.setState(prevState => ({
+            selectedEvent: {
+                ...prevState.selectedEvent,
+                [name]: value
+            }
+        }));
+    }
 
     scrollToFirstEvent = () => {
         // Поиск первого события в текущем видимом диапазоне
@@ -107,7 +118,7 @@ class EventCalendar extends React.Component {
     handleSelectSlot = ({ start, end }) => {
         // Пустой слот для создания нового события или блокировки
         this.setState({
-            selectedEvent: { start, end, title: '', phone: '', email: '', isBlocked: false },
+            selectedEvent: { start, end, title: '', phone: '', email: '', type: 'treatment', isBlocked: false },
             modalIsOpen: true,
         });
     }
@@ -138,6 +149,7 @@ class EventCalendar extends React.Component {
             end: new Date(form.end.value),
             phone: form.phone.value,
             email: form.email.value,
+            type: this.state.selectedEvent.type,
             isBlocked: form.isBlocked.checked
         };
 
@@ -182,6 +194,11 @@ class EventCalendar extends React.Component {
                         }}>
                             <input type="text" name="title" defaultValue={this.state.selectedEvent?.title}
                                    placeholder="ФИО пациента или причина блокировки"/>
+                            <select name="type" value={this.state.selectedEvent?.type}
+                                    onChange={this.handleSlotTypeChange}>
+                                <option value="consultation">Консультация</option>
+                                <option value="treatment">Лечение</option>
+                            </select>
                             <input type="datetime-local" name="start"
                                    defaultValue={moment(this.state.selectedEvent?.start).format('YYYY-MM-DDTHH:mm')}/>
                             <input type="datetime-local" name="end"
@@ -198,7 +215,7 @@ class EventCalendar extends React.Component {
                                 />
                                 Блокировать
                             </label>
-                            { this.state.selectedEvent && this.state.selectedEvent.id !== undefined &&
+                            {this.state.selectedEvent && this.state.selectedEvent.id !== undefined &&
                                 <div>
                                     <h3 className="download-section-title">Документы для скачивания:</h3>
                                     <div className="document-section">

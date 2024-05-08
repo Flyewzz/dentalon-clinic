@@ -81,4 +81,52 @@ function authenticatedDoctor(tokenService) {
     }
 }
 
-module.exports = { authenticated, authenticatedDoctor };
+function authenticateOptional(tokenService) {
+    return async function (req, res, next) {
+        const authHeader = req.headers.authorization;
+        const token = authHeader && authHeader.split(' ')[1];
+        
+        if (!token) {
+            next()
+        }
+        try {
+            req.user = jwt.verify(token, tokenService.jwt_secret);
+
+            // Если пользователь аутентифицирован как врач, применяем строгую проверку
+            if (req.user.role === 'doctor') {
+                return next();
+            } else {
+                // Продолжаем обработку для авторизованных пациентов
+                return next();
+            }
+        } catch (err) {
+            if (err.name !== 'TokenExpiredError') {
+                return res.status(403).json({ message: "Invalid token", error: err.message });
+            }
+            
+            // Попытка обновить токен
+            const refreshToken = req.headers['x-refresh-token'];
+            const newTokens = await tokenService.refreshAccessToken(refreshToken);
+            if (!newTokens) {
+                return res.status(403).json({ message: "No valid refresh token available" });
+            }
+            // Обновляем токены в заголовках ответа
+            res.set('Access-Control-Expose-Headers', 'x-access-token, x-refresh-token');
+            res.set('x-access-token', newTokens.accessToken);
+            res.set('x-refresh-token', newTokens.refreshToken);
+
+            // Обновляем данные пользователя
+            req.user = jwt.verify(newTokens.accessToken, tokenService.jwt_secret);
+
+            if (req.user.role === 'doctor') {
+                return next();
+            } else {
+                // Продолжаем обработку для авторизованных пациентов
+                return next();
+            }
+        }
+    }
+}
+
+
+module.exports = { authenticated, authenticatedDoctor, authenticateOptional };

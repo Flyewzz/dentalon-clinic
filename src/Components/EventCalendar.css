@@ -102,7 +102,8 @@
 
 /* Стили для текстовых полей внутри модального окна */
 .doctor-dashboard-modal input,
-.doctor-dashboard-modal textarea {
+.doctor-dashboard-modal textarea,
+.doctor-dashboard-modal select {
     width: 100%;
     padding: 8px;
     margin: 5px 0 20px 0;
@@ -114,7 +115,7 @@
     color: #333; /* Черный цвет текста в полях */
 }
 
-.doctor-dashboard-modal input:focus {
+.doctor-dashboard-modal input:focus, .doctor-dashboard-modal select:focus {
     border: 0.1rem solid #997af0;
     outline: none;
 }

@@ -37,7 +37,7 @@ app.get('/', (req, res) => {
   res.json({ message: 'Hello from server!' });
 });
 
-app.use('/api/v1/appointments', appointmentRoutes); // Используйте новые маршруты бронирований
+app.use('/api/v1/appointments', appointmentRoutes({tokenService})); // Используйте новые маршруты бронирований
 
 
 const contractManager = new ContractManager();

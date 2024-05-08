@@ -1,14 +1,21 @@
 // appointmentRoutes.js
 
 const express = require('express');
-const router = express.Router();
 const appointmentController = require('../controllers/appointmentController');
+const {authenticateOptional} = require("../middleware/authenticate");
 
-router.get('/slots', appointmentController.findAppointments);
+function appointmentRoutes(dependencies) {
+    const { tokenService } = dependencies;
+    const router = express.Router();
 
-router.get('/', appointmentController.getSlots);
-router.post('/', appointmentController.bookAppointment);
-router.delete('/:appointmentId', appointmentController.cancelAppointment);
-router.put('/:appointmentId', appointmentController.updateAppointment);
+    router.get('/slots', appointmentController.findAppointments);
 
-module.exports = router;
+    router.get('/', appointmentController.getSlots);
+    router.post('/', authenticateOptional(tokenService), appointmentController.bookAppointment);
+    router.delete('/:appointmentId', appointmentController.cancelAppointment);
+    router.put('/:appointmentId', appointmentController.updateAppointment);
+    
+    return router;
+}
+
+module.exports = appointmentRoutes;

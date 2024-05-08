@@ -3,25 +3,42 @@ class EventService {
         this.baseUrl = baseUrl; // URL вашего API;
         this.events = [];
     }
+    
+    login(res) {
+        const accessToken = res.headers.get('X-Access-Token');
+        const refreshToken = res.headers.get('X-Refresh-Token');
+        
+        if (accessToken && refreshToken) {
+            localStorage.setItem('X-Access-Token', accessToken);
+            localStorage.setItem('X-Refresh-Token', refreshToken);
+        }
+    }
 
-    getToken() {
-        return localStorage.getItem('accessToken');  // Получаем токен из localStorage
+    getTokens() {
+        return {
+            accessToken: localStorage.getItem('accessToken'),
+            refreshToken: localStorage.getItem('refreshToken')
+        };
     }
     
+    
     async fetchEvents(start, end, doctorId = 1) {
-        const token = this.getToken();
+        const { accessToken, refreshToken } = this.getTokens();
         try {
             start = start.toISOString();
             end = end.toISOString();
-            console.log(start, end);
+
             const response = await fetch(
                 `${this.baseUrl}/appointments/slots?startTime=${start}&endTime=${end}`, {
                     headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Content-Type': 'application/json'
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                        'X-Refresh-Token': refreshToken,
                     }
                 }
             );
+            
+            this.login(response);
             const data = await response.json();
             
             return data.map(app => ({
@@ -40,42 +57,49 @@ class EventService {
     }
 
     async addSlot(slotData)  {
-        const token = this.getToken();
+        const { accessToken, refreshToken } = this.getTokens();
         const response = await fetch(`${this.baseUrl}/appointments`, {
             method: 'POST',
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json' 
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                'X-Refresh-Token': refreshToken,
             },
             body: JSON.stringify(slotData)
         });
-        
+
+        this.login(response);
         return await response.json();
     };
 
     async updateEvent(id, eventData) {
-        const token = this.getToken();
+        const { accessToken, refreshToken } = this.getTokens();
         const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
             method: 'PUT',
             headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json' 
+                'Authorization': `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+                'X-Refresh-Token': refreshToken,
             },
             body: JSON.stringify(eventData)
         });
-        
+
+        this.login(response);
         return await response.json();
     }
 
     async deleteEvent(id) {
-        const token = this.getToken();
+        const { accessToken, refreshToken } = this.getTokens();
+
         const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
             method: 'DELETE',
             headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${accessToken}`,
+                'X-Refresh-Token': refreshToken,
             }
         });
-        
+
+        this.login(response);
         return await response.json();
     }
 }

@@ -19,11 +19,16 @@ exports.findAppointments = async (req, res) => {
 }
 
 exports.bookAppointment = async (req, res) => {
+    let appointment;
     try {
-        const appointment = await appointmentManager.bookAppointmentForPatient(req.body);
+        if (req.user && req.user.role === 'doctor') {
+            appointment = await appointmentManager.bookAppointmentForDoctor(req.body);
+        } else {
+            appointment = await appointmentManager.bookAppointmentForPatient(req.body);
+        }
         res.status(201).json(appointment);
     } catch (error) {
-        res.status(error.statusCode || 500).json({ message: error.message });
+        res.status(error.statusCode || 500).json({message: error.message});
     }
 };
 
