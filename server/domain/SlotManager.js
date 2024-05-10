@@ -8,7 +8,7 @@ class SlotManager {
         this.doctorScheduleManager = new DoctorScheduleManager(doctorId);
     }
 
-    async generateSlots(date, slotType = 'consultation', timezone = 'Asia/Yerevan') {
+    async generateSlots(date, slotType = 'consultation', timezone) {
         const dayOfWeek = moment(date).day();
         const schedule = await this.doctorScheduleManager.getSchedule();
 
@@ -22,8 +22,11 @@ class SlotManager {
         }
 
         let slots = [];
-        let startTime = moment(`${date}T${workHours.startTime}`);
-        let endTime = moment(`${date}T${workHours.endTime}`);
+        let localStartTime = moment.tz(`${date}T${workHours.startTime}`, timezone);
+        let localEndTime = moment.tz(`${date}T${workHours.endTime}`, timezone);
+        
+        let startTime = localStartTime.utc();
+        let endTime = localEndTime.utc();
         let currentTime = startTime.clone();
         let duration = (slotType === 'consultation' ? 15 : 45);  // Продолжительность зависит от типа слота
         if (slotType === 'consultation') {

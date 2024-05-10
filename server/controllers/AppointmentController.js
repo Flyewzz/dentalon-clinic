@@ -50,15 +50,16 @@ exports.updateAppointment = async (req, res) => {
     }
 };
 
-exports.getSlots = async (req, res) => {
-    const { date, type } = req.query;  // Принимаем дату через параметры запроса
+exports.getSlots = function(timezone) {
+    return async (req, res) => {
+        const {date, type} = req.query;  // Принимаем дату через параметры запроса
 
-    try {
-        const availableSlots = await slotManager.generateSlots(date, type);
-        res.status(200).json(availableSlots);
-    } catch (error) {
-        console.error('Error fetching available slots:', error);
-        res.status(500).json({ message: 'Failed to fetch available slots due to an error' });
+        try {
+            const availableSlots = await slotManager.generateSlots(date, type, timezone);
+            res.status(200).json(availableSlots);
+        } catch (error) {
+            console.error('Error fetching available slots:', error);
+            res.status(500).json({message: 'Failed to fetch available slots due to an error'});
+        }
     }
-    
 }

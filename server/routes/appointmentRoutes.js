@@ -5,12 +5,12 @@ const appointmentController = require('../controllers/appointmentController');
 const {authenticateOptional} = require("../middleware/authenticate");
 
 function appointmentRoutes(dependencies) {
-    const { tokenService } = dependencies;
+    const { tokenService, timezone } = dependencies;
     const router = express.Router();
 
     router.get('/slots', appointmentController.findAppointments);
 
-    router.get('/', appointmentController.getSlots);
+    router.get('/', appointmentController.getSlots(timezone));
     router.post('/', authenticateOptional(tokenService), appointmentController.bookAppointment);
     router.delete('/:appointmentId', appointmentController.cancelAppointment);
     router.put('/:appointmentId', appointmentController.updateAppointment);

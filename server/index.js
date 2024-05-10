@@ -33,12 +33,13 @@ const tokenService = new TokenService({
   jwt_secret: process.env.JWT_SECRET,
   refresh_token_secret: process.env.JWT_REFRESH_SECRET,
 })
+const timezone = process.env.TIMEZONE || 'Asia/Yerevan'
 
 app.get('/', (req, res) => {
   res.json({ message: 'Hello from server!' });
 });
 
-app.use('/api/v1/appointments', appointmentRoutes({tokenService})); // Используйте новые маршруты бронирований
+app.use('/api/v1/appointments', appointmentRoutes({tokenService, timezone})); // Используйте новые маршруты бронирований
 
 
 const contractManager = new ContractManager();
