@@ -1,7 +1,7 @@
 // appointmentRoutes.js
 
 const express = require('express');
-const appointmentController = require('../controllers/appointmentController');
+const appointmentController = require('../controllers/AppointmentController');
 const {authenticateOptional} = require("../middleware/authenticate");
 
 function appointmentRoutes(dependencies) {
