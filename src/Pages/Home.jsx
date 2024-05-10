@@ -33,9 +33,6 @@ const Home = () => {
                 >
                   Мы заботимся о вашей улыбке
                 </h2>
-                <p>
-                  Мы считаем, что каждый должен иметь доступ к отличным доступным стоматологическим услугам.
-                </p>
                 <div className="social_links"></div>
               </div>
               <div className="slider_controls">

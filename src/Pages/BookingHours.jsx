@@ -4,6 +4,8 @@ import {toast, ToastContainer} from 'react-toastify';
 import './BookingHours.css';
 import {useNavigate} from 'react-router-dom';
 import Spinner from '../Components/Spinner';
+import PhoneInput from 'react-phone-number-input';
+import 'react-phone-number-input/style.css';
 
 const BookingHours = (props) => {
   const apiBaseUrl = props.apiBaseUrl;
@@ -65,8 +67,17 @@ const BookingHours = (props) => {
 
   let name, value;
   const handleInputs = (e) => {
-    name = e.target.name;
-    value = e.target.value;
+    if (!e) {
+      return;
+    }
+    
+    if (e.target) { // Обработка обычных инпутов
+      name = e.target.name;
+      value = e.target.value;
+    } else { // e — это строка, пришедшая от PhoneInput
+      name = 'phone';
+      value = e;
+    }
     setActiveUser({ ...activeUser, [name]: value });
   };
 
@@ -97,31 +108,31 @@ const BookingHours = (props) => {
   const handleValidation = () => {
     const { date, name, email, phone, time } = activeUser;
     if (date === '') {
-      toast.error('Choose the Date', toastOptions);
+      toast.error('Выберите дату записи', toastOptions);
+      return false;
+    } else if (selectedType === '') {
+      toast.error('Выберите тип записи (консультация / лечение)', toastOptions);
       return false;
     } else if (name === '') {
-      toast.error('Enter your name', toastOptions);
+      toast.error('Введите ваши ФИО', toastOptions);
       return false;
-    } else if (email === '') {
-      toast.error('Enter your Email', toastOptions);
+    } else if (!validateEmail(email)) {
+      toast.error('Введите корректный email', toastOptions);
       return false;
     } else if (phone === '') {
-      toast.error('Enter Your Currect Phone No', toastOptions);
+      toast.error('Введите корректный номер телефона', toastOptions);
       return false;
     } else if (time === '') {
-      toast.error('Choose your slot timing', toastOptions);
-      return false;
-    } else if (
-      date === '' ||
-      name === '' ||
-      email === '' ||
-      phone === '' ||
-      time === ''
-    ) {
-      toast.error('Plz Enter Your all details', toastOptions);
+      toast.error('Выберите доступный слот', toastOptions);
       return false;
     }
+    
     return true;
+  };
+
+  const validateEmail = (email) => {
+    // Optional email pattern validation: either empty or a valid email pattern
+    return email === '' || /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
   };
   
   const handleSubmit = async (event) => {
@@ -165,15 +176,13 @@ const BookingHours = (props) => {
           toast.error(data.message, toastOptions);
         } else {
           console.error('An error occurred while processing your request.');
-          toast.error(
-            'An error occurred while processing your request.',
-            toastOptions
-          );
+          const data = await res.json();
+          toast.error(data.message, toastOptions);
         }
       } catch (err) {
         console.error(err);
         toast.error(
-          'An error occurred while processing your request.',
+          err.message,
           toastOptions
         );
       } finally {
@@ -197,7 +206,7 @@ const BookingHours = (props) => {
                       <h1>Денталон</h1>
                     </div>
                     <div className="in__container">
-                      <label htmlFor="type">Тип слота:</label>
+                      <label htmlFor="type">Тип слота </label>
                       <select id="type" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
                         <option value="consultation">Консультация</option>
                         <option value="treatment">Лечение</option>
@@ -245,24 +254,30 @@ const BookingHours = (props) => {
                         min="3"
                         value={activeUser.email}
                         onChange={handleInputs}
-                        required
                       />
                     </div>
                     <div className="in__container">
                       <label>Номер телефона </label>
-                      <input
-                        type="tel"
-                        placeholder="Введите ваш номер телефона"
-                        name="phone"
-                        value={activeUser.phone}
-                        onChange={handleInputs}
-                        onKeyPress={(event) => {
-                          if (event.target.value.length >= 15) {
-                            event.preventDefault();
-                          }
-                        }}
-                        required
+                      <PhoneInput
+                          international
+                          defaultCountry="RU"
+                          value={activeUser.phone}
+                          onChange={handleInputs}
+                          required
                       />
+                      {/*<input*/}
+                      {/*  type="tel"*/}
+                      {/*  placeholder="Введите ваш номер телефона"*/}
+                      {/*  name="phone"*/}
+                      {/*  value={activeUser.phone}*/}
+                      {/*  onChange={handleInputs}*/}
+                      {/*  onKeyPress={(event) => {*/}
+                      {/*    if (event.target.value.length >= 15) {*/}
+                      {/*      event.preventDefault();*/}
+                      {/*    }*/}
+                      {/*  }}*/}
+                      {/*  required*/}
+                      {/*/>*/}
                     </div>
                   </div>
                 </div>
@@ -298,7 +313,7 @@ const BookingHours = (props) => {
                     )}
                   </div>
                 </div>
-                <hr/>
+                <hr style={{ width: '100%' }}/>
                 <div className="submit_slot_btn">
                   <button className="booking_c_btn" id="bcb" type="submit">
                         <span style={btn === 1 ? {display: 'none'} : {}}>

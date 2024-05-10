@@ -20,7 +20,7 @@ const apBooking = () => {
           textDecoration: "none",
         }}
       >
-        <h3 style={{ color: "#fff", fontSize: "18px" }}>BOOK APPOINTMENT</h3>
+        <h3 style={{ color: "#fff", fontSize: "18px" }}>Записаться на прием</h3>
       </HashLink>
     </>
   );

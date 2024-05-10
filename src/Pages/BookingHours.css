@@ -44,14 +44,15 @@ input[type='date']::-webkit-calendar-picker-indicator {
 .bsc_lower_evening_container,
 .bsc_lower_morning_container {
   display: flex;
-  align-items: center;
-  justify-content: center;
-  align-content: center;
-  flex-direction: row;
-  flex-wrap: wrap;
+  flex-direction: column; /* Элементы будут расположены вертикально */
+  align-items: center; /* Центрирование элементов по горизонтали */
+  justify-content: flex-start; /* Выравнивание элементов сверху контейнера */
+  width: 100%; /* Задать ширину контейнера, если нужно */
+  padding: 10px; /* Отступы внутри контейнера */
 }
 .me_slot_selection {
   display: flex;
+  align-items: center;
   padding: 20px 15px 15px 15px;
   background: #332144;
 }
@@ -279,7 +280,8 @@ form {
   }
   .bsc_lower_morning_container,
   .bsc_lower_evening_container {
-    height: 441px;
+    min-height: 260px; /* минимальная высота контейнера */
+    height: auto; /* высота по содержимому */
   }
   .morning_info_container,
   .evening_info_container {
