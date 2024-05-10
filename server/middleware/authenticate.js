@@ -87,8 +87,9 @@ function authenticateOptional(tokenService) {
         const token = authHeader && authHeader.split(' ')[1];
         
         if (!token) {
-            next()
+            return next()
         }
+        
         try {
             req.user = jwt.verify(token, tokenService.jwt_secret);
 
