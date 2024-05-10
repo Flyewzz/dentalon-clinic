@@ -11,6 +11,7 @@ const TokenService = require('./services/TokenService');
 const { authenticated, authenticatedDoctor } = require('./middleware/authenticate');
 
 require('dotenv').config();
+// require('./instrumentation');
 
 const app = express();
 app.use(cors());
@@ -132,6 +133,8 @@ app.post('/register', async (req, res) => {
 
 app.post('/login_user', async (req, res) => {
   try {
+    console.log(req);
+    console.log(req.body);
     const user = await User.findOne({ email: req.body.email }).select('+password').lean();
     user._id = user._id.toString();
     if (!user || !await bcrypt.compare(req.body.password, user.password)) {
