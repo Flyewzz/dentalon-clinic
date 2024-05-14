@@ -16,6 +16,18 @@ class AppointmentService {
         }
     }
 
+    async findOverlappedAppointments({startTime, endTime, doctorId = 1}) {
+        try {
+            return await Appointment.find({
+                startTime: {$lt: new Date(endTime)},
+                endTime: {$gt: new Date(startTime)},
+                doctorId: doctorId,
+            });
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     async findAppointments(startTime, endTime, doctorId = 1) {
         try {
             return await Appointment.find({

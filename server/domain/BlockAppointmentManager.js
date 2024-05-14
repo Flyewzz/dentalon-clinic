@@ -1,16 +1,23 @@
-const Block = require('../services/BlockService');
-
 class BlockManager {
-    static async createBlock(blockData) {
+    constructor(blockService, appointmentService) {
+        this.blockService = blockService;
+        this.appointmentService = appointmentService;
+    }
+    async createBlock(blockData) {
         // Проверка перекрытия с существующими записями
-        const overlap = await Block.checkOverlap(blockData);
-        if (overlap) {
-            throw new Error('Block overlaps with existing appointments');
+        const overlappedAppointments = await 
+            this.appointmentService.findOverlappedAppointments(blockData);
+        
+        if (overlappedAppointments) {
+            throw new Error('Блокировка перекрывается с существующими записями на прием. Перенесите или отмените их, пожалуйста.');
         }
-        return await Block.createBlock(blockData);
+        
+        return await this.blockService.createBlock(blockData);
     }
 
-    static async deleteBlock(blockId) {
-        return await Block.deleteBlock(blockId);
+    async deleteBlock(blockId) {
+        return await this.blockService.deleteBlock(blockId);
     }
 }
+
+module.exports = BlockManager;

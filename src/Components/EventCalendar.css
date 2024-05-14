@@ -26,6 +26,7 @@
     border-radius: 5px; /* Скругление углов событий */
     padding: 2px 5px; /* Паддинг внутри событий */
     border: none; /* Убрать границу событий */
+    min-width: 100%;
 }
 
 .rbc-event:hover {
@@ -178,3 +179,39 @@
     border-radius: 4px;        /* Скругление углов фона при наведении */
 }
 
+
+.rbc-events-container{
+    width: 100%;
+}
+
+.rbc-event-content {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding: 4px 6px; /* Добавьте отступы для лучшего визуального восприятия */
+}
+
+@media (max-width: 768px) {
+    .rbc-event-content {
+        font-size: 12px; /* Уменьшаем шрифт для устройств с маленьким экраном */
+    }
+}
+
+@media (min-width: 769px) {
+    .rbc-event-content {
+        font-size: 14px; /* Больший шрифт для устройств с большим экраном */
+    }
+}
+
+.rbc-month-column {
+    display: inline-table !important;
+    flex: 0 0 0 !important;
+    min-height: 50px !important;
+    min-width: auto !important;
+}
+
+.rbc-week-row {
+    display: inline-table !important;
+    flex: 0 0 0 !important;
+    min-height: 50px !important;
+}

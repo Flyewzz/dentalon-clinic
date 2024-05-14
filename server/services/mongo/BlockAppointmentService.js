@@ -1,5 +1,4 @@
-const Block = require('../models/Block');
-const Appointment = require("../../domain/model/Appointment");
+const Block = require('../../domain/model/BlockAppointment');
 
 class BlockService {
     static async createBlock(blockData) {
@@ -13,9 +12,11 @@ class BlockService {
 
     static async checkOverlap({ doctorId, startTime, endTime }) {
         return await Block.findOne({
-            doctorId,
             startTime: { $lt: endTime },
-            endTime: { $gt: startTime }
+            endTime: { $gt: startTime },
+            doctorId,
         });
     }
 }
+
+module.exports = BlockService;

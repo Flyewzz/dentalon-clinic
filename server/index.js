@@ -4,6 +4,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('./domain/model/User');
 const appointmentRoutes = require('./routes/appointmentRoutes'); // Подключение новых маршрутов бронирований
+const blockRoutes = require('./routes/blockAppointmentRoutes'); // Подключение новых маршрутов бронирований
 const ContractManager = require('./domain/ContractManager');
 const Appointment = require('./domain/model/Appointment');
 const moment = require('moment-timezone');
@@ -35,11 +36,8 @@ const tokenService = new TokenService({
 })
 const timezone = process.env.TIMEZONE || 'Asia/Yerevan'
 
-app.get('/', (req, res) => {
-  res.json({ message: 'Hello from server!' });
-});
-
 app.use('/api/v1/appointments', appointmentRoutes({tokenService, timezone})); // Используйте новые маршруты бронирований
+app.use('/api/v1/blocks', blockRoutes({tokenService, timezone})); // Используйте новые маршруты бронирований
 
 
 const contractManager = new ContractManager();

@@ -1,3 +1,5 @@
+import EventFactory from "./EventFactory";
+
 class EventService {
     constructor(baseUrl) {
         this.baseUrl = baseUrl; // URL вашего API;
@@ -20,68 +22,54 @@ class EventService {
             refreshToken: localStorage.getItem('refreshToken')
         };
     }
-    
+
+    async authenticatedRequest(url, options = {}) {
+        const tokens = this.getTokens();
+        const headers = new Headers(options.headers || {});
+        headers.append('Authorization', `Bearer ${tokens.accessToken}`);
+        headers.append('Content-Type', 'application/json');
+        headers.append('X-Refresh-Token', tokens.refreshToken);
+
+        const response = await fetch(url, { ...options, headers });
+        this.login(response); // Обновить токены если нужно
+        return response;
+    }
     
     async fetchEvents(start, end, doctorId = 1) {
-        const { accessToken, refreshToken } = this.getTokens();
         try {
             start = start.toISOString();
             end = end.toISOString();
 
-            const response = await fetch(
-                `${this.baseUrl}/appointments/slots?startTime=${start}&endTime=${end}`, {
-                    headers: {
-                        'Authorization': `Bearer ${accessToken}`,
-                        'Content-Type': 'application/json',
-                        'X-Refresh-Token': refreshToken,
-                    }
-                }
+            const response = await this.authenticatedRequest(
+                `${this.baseUrl}/appointments/slots?startTime=${start}&endTime=${end}`
             );
             
-            this.login(response);
             const data = await response.json();
-            
-            return data.map(app => ({
-                id: app._id,
-                title: app.name, // Имя клиента как заголовок
-                start: new Date(app.startTime),
-                end: new Date(app.endTime),
-                phone: app.phone,
-                email: app.email || '',
-                isBlocked: false,
-                type: app.type,
-            }));
+            return data.map(item => EventFactory.createSlot(item));
         } catch (error) {
             console.error('Error fetching events:', error);
             return [];  // Возвращаем пустой массив в случае ошибки
         }
     }
 
+    async fetchBlocks(start, end) {
+        const response = this.authenticatedRequest(`${this.apiUrl}/api/v1/blocks?startTime=${start.toISOString()}&endTime=${end.toISOString()}`);
+        const data = await response.json();
+        return data.map(blockData => EventFactory.createBlock(blockData));
+    }
+
     async addSlot(slotData)  {
-        const { accessToken, refreshToken } = this.getTokens();
-        const response = await fetch(`${this.baseUrl}/appointments`, {
+        const response = await this.authenticatedRequest(`${this.baseUrl}/appointments`, {
             method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-                'X-Refresh-Token': refreshToken,
-            },
             body: JSON.stringify(slotData)
         });
 
-        this.login(response);
         return await response.json();
     };
 
     async updateEvent(id, eventData) {
-        const { accessToken, refreshToken } = this.getTokens();
-        const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
+        const response = await this.authenticatedRequest(`${this.baseUrl}/appointments/${id}`, {
             method: 'PUT',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-                'X-Refresh-Token': refreshToken,
-            },
             body: JSON.stringify(eventData)
         });
 
@@ -90,14 +78,8 @@ class EventService {
     }
 
     async deleteEvent(id) {
-        const { accessToken, refreshToken } = this.getTokens();
-
-        const response = await fetch(`${this.baseUrl}/appointments/${id}`, {
+        const response = await this.authenticatedRequest(`${this.baseUrl}/appointments/${id}`, {
             method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${accessToken}`,
-                'X-Refresh-Token': refreshToken,
-            }
         });
 
         this.login(response);
@@ -105,4 +87,4 @@ class EventService {
     }
 }
 
-module.exports = EventService;
+export default EventService;

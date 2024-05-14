@@ -35,7 +35,7 @@ exports.bookAppointment = async (req, res) => {
 exports.cancelAppointment = async (req, res) => {
     try {
         await appointmentManager.cancelAppointment(req.params.appointmentId);
-        res.status(200).json({ message: 'Appointment successfully cancelled' });
+        res.status(200).json({ message: 'Запись на прием успешно отменена' });
     } catch (error) {
         res.status(400).json({ message: error.message });
     }

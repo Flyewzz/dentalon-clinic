@@ -7,7 +7,10 @@ import React from "react";
 import ReactModal from "react-modal";
 import EventSlotAdapter from "../Adapters/EventSlotAdapter";
 import './EventCalendar.css';
-import WordIcon from '../assets/word.png'
+import {Block} from "../Models/Event";
+import BlockForm from "./Forms/BlockForm";
+import SlotForm from "./Forms/SlotForm";
+import EventFactory from "../Services/EventFactory";
 
 const localizer = momentLocalizer(moment);
 
@@ -22,6 +25,7 @@ class EventCalendar extends React.Component {
             events: [],
             modalIsOpen: false,
             selectedEvent: null,
+            isBlock: false,
             visibleRange: getCurrentWeekRange(),
         };
 
@@ -47,13 +51,21 @@ class EventCalendar extends React.Component {
 
     loadEvents = async () => {
         const {start, end} = this.state.visibleRange;
-        const events = await this.eventService.fetchEvents(start, end);
+        let events = await this.eventService.fetchEvents(start, end);
+        events = events.map(item => item.toJSON());
         this.setState({ events: events }, () => this.scrollToFirstEvent());
     }
 
     handleUpdateEvent = async (eventId, eventData) => {
         const slot = this.eventSlotAdapter.eventToSlot(eventData);
         await this.eventService.updateEvent(eventId, slot);
+        await this.loadEvents();
+    }
+
+    handleUpdateBlock = async (blockId, blockData) => {
+        // todo
+        const slot = this.eventSlotAdapter.eventToSlot(blockData);
+        await this.eventService.updateEvent(blockId, slot);
         await this.loadEvents();
     }
 
@@ -115,24 +127,6 @@ class EventCalendar extends React.Component {
         });
     };
     
-    handleSelectSlot = ({ start, end }) => {
-        // Пустой слот для создания нового события или блокировки
-        this.setState({
-            selectedEvent: { start, end, title: '', phone: '', email: '', type: 'treatment', isBlocked: false },
-            modalIsOpen: true,
-        });
-    }
-
-    handleCheckboxChange = (e) => {
-        const { name, checked } = e.target;
-        this.setState(prevState => ({
-            selectedEvent: {
-                ...prevState.selectedEvent,
-                [name]: checked
-            }
-        }));
-    }
-
     handleDeleteEvent = async (eventId) => {
         await this.eventService.deleteEvent(eventId);
         await this.loadEvents();
@@ -143,28 +137,50 @@ class EventCalendar extends React.Component {
         event.preventDefault();
         const form = event.target;
         const eventData = {
-            id: this.state.selectedEvent.id,
             title: form.title.value,
             start: new Date(form.start.value),
             end: new Date(form.end.value),
             phone: form.phone.value,
             email: form.email.value,
-            type: this.state.selectedEvent.type,
-            isBlocked: form.isBlocked.checked
+            type: form.type.value,
         };
 
-        if (eventData.id !== undefined) {
-            await this.handleUpdateEvent(eventData.id, eventData);
+        if (this.state.selectedEvent.id !== undefined) {
+            eventData.id = this.state.selectedEvent.id;
+            if (eventData.isBlocked) {
+            } else {
+                await this.handleUpdateEvent(eventData.id, eventData);
+            }
         } else {
             await this.handleAddEvent(eventData);
         }
         this.closeModal();
     }
 
+    handleSelectSlot = ({ start, end }) => {
+        // Пустой слот для создания нового события или блокировки
+        this.setState({
+            selectedEvent: EventFactory.createSlot({ startTime: start, endTime: end }).toJSON(),
+            modalIsOpen: true,
+        });
+    }
+
+    eventStyleGetter = event => {
+        const style = {
+            backgroundColor: event instanceof Block ? 'red' : '#3174ad',
+            borderRadius: '0px',
+            opacity: 0.8,
+            color: 'white',
+            border: '0px',
+            display: 'block'
+        };
+        return { style };
+    };
+
     render() {
         return (
             <>
-                <button onClick={() => this.handleSelectSlot({ start: new Date(), end: new Date() })}>Добавить слот</button>
+                <button onClick={() => this.handleSelectSlot({ start: new Date(), end: moment(new Date()).add(45, 'minutes').toDate() })}>Добавить слот</button>
                 <Calendar
                     localizer={localizer}
                     events={this.state.events}
@@ -192,57 +208,13 @@ class EventCalendar extends React.Component {
                         <form className='doctor-dashboard-modal' onSubmit={(e) => {
                             this.handleSubmitChanges(e);
                         }}>
-                            <input type="text" name="title" defaultValue={this.state.selectedEvent?.title}
-                                   placeholder="ФИО пациента или причина блокировки"/>
-                            <select name="type" value={this.state.selectedEvent?.type}
-                                    onChange={this.handleSlotTypeChange}>
-                                <option value="consultation">Консультация</option>
-                                <option value="treatment">Лечение</option>
-                            </select>
-                            <input type="datetime-local" name="start"
-                                   defaultValue={moment(this.state.selectedEvent?.start).format('YYYY-MM-DDTHH:mm')}/>
-                            <input type="datetime-local" name="end"
-                                   defaultValue={moment(this.state.selectedEvent?.end).format('YYYY-MM-DDTHH:mm')}/>
-                            <input type="text" name="phone" defaultValue={this.state.selectedEvent?.phone}
-                                   placeholder="Телефон"/>
-                            <input type="email" name="email" defaultValue={this.state.selectedEvent?.email}
-                                   placeholder="Email"/>
-                            <label>
-                                <input type="checkbox"
-                                       name="isBlocked"
-                                       checked={this.state.selectedEvent?.isBlocked || false}
-                                       onChange={this.handleCheckboxChange}
-                                />
-                                Блокировать
-                            </label>
-                            {this.state.selectedEvent && this.state.selectedEvent.id !== undefined &&
-                                <div>
-                                    <h3 className="download-section-title">Документы для скачивания:</h3>
-                                    <div className="document-section">
-                                        <a href={`${this.baseUrl}/contracts/slots/${this.state.selectedEvent.id}?docName=1`}
-                                           className="download-link" download>
-                                            <img src={WordIcon} alt="Download" width="32" height="32"/>
-                                            Договор лечения
-                                        </a>
-                                        <a href={`${this.baseUrl}/contracts/slots/${this.state.selectedEvent.id}?docName=2`}
-                                           className="download-link" download>
-                                            <img src={WordIcon} alt="Download" width="32" height="32"/>
-                                            Договор ортопедического лечения
-                                        </a>
-                                    </div>
-                                    <button onClick={() => {
-                                        downloadFile(`${this.baseUrl}/contracts/slots/${this.state.selectedEvent.id}?docName=1`, 'Договор_лечения.docx');
-                                        downloadFile(`${this.baseUrl}/contracts/slots/${this.state.selectedEvent.id}?docName=2`, 'Договор_ортопедического_лечения.docx');
-                                    }}>
-                                        Скачать все
-                                    </button>
-
-                                </div>
-                            }
-                            <button
-                                type="submit"
-                            >
-                                {this.state.selectedEvent && this.state.selectedEvent.id !== undefined ? 'Сохранить изменения' : 'Добавить слот'}
+                            {this.state.selectedEvent && this.state.selectedEvent.isBlocked ? (
+                                <BlockForm initialData={this.state.selectedEvent} />
+                            ) : (
+                                <SlotForm initialData={this.state.selectedEvent} baseUrl={this.baseUrl} />
+                            )}
+                            <button type="submit">
+                                {this.state.selectedEvent && this.state.selectedEvent.id !== undefined ? 'Сохранить изменения' : 'Добавить событие'}
                             </button>
                         </form>
                         <button onClick={this.closeModal}>Отмена</button>
@@ -254,30 +226,21 @@ class EventCalendar extends React.Component {
     }
 }
 
-const downloadFile = async (url, filename) => {
-    try {
-        const response = await fetch(url);
-        if (!response.ok) throw new Error('Network response was not ok');
+function EventWrapper({ event }) {
+    // Определение стиля в зависимости от типа события
+    const style = {
+        backgroundColor: event.isBlocked ? 'red' : '#007bff',
+        borderRadius: '0px',
+        opacity: 0.8,
+        color: 'white',
+        border: '0px',
+        display: 'block',
+        whiteSpace: 'nowrap', // Убедитесь, что текст не переносится на новую строку
+        padding: '5px'
+    };
 
-        const blob = await response.blob();
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = downloadUrl;
-        link.download = filename;
-        link.click();
-
-        // Очистка после скачивания
-        window.URL.revokeObjectURL(downloadUrl);
-        link.remove();
-    } catch (error) {
-        console.error('Error downloading the file:', error);
-    }
-}
-
-function EventWrapper({event}) {
-    // Компонент для отображения каждого события в календаре
     return (
-        <div style={{background: event.isBlocked ? 'red' : 'green', padding: '5px'}}>
+        <div style={style}>
             {event.title}
         </div>
     );
