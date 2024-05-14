@@ -7,10 +7,10 @@ import React from "react";
 import ReactModal from "react-modal";
 import EventSlotAdapter from "../Adapters/EventSlotAdapter";
 import './EventCalendar.css';
-import {Block} from "../Models/Event";
 import BlockForm from "./Forms/BlockForm";
 import SlotForm from "./Forms/SlotForm";
 import EventFactory from "../Services/EventFactory";
+import EventBlockAdapter from "../Adapters/EventBlockAdapter";
 
 const localizer = momentLocalizer(moment);
 
@@ -19,13 +19,13 @@ class EventCalendar extends React.Component {
         super(props);
         this.eventService = new EventService(props.baseUrl);
         this.eventSlotAdapter = new EventSlotAdapter();
+        this.eventBlockAdapter = new EventBlockAdapter();
         this.baseUrl = props.baseUrl;
         
         this.state = {
             events: [],
             modalIsOpen: false,
             selectedEvent: null,
-            isBlock: false,
             visibleRange: getCurrentWeekRange(),
         };
 
@@ -51,27 +51,36 @@ class EventCalendar extends React.Component {
 
     loadEvents = async () => {
         const {start, end} = this.state.visibleRange;
-        let events = await this.eventService.fetchEvents(start, end);
-        events = events.map(item => item.toJSON());
+        const [fetchedEvents, fetchedBlocks] = await Promise.all([
+            this.eventService.fetchEvents(start, end),
+            this.eventService.fetchBlocks(start, end),
+        ])
+        
+        const events = [...fetchedEvents, ...fetchedBlocks].map(item => item.toJSON());
         this.setState({ events: events }, () => this.scrollToFirstEvent());
     }
 
-    handleUpdateEvent = async (eventId, eventData) => {
-        const slot = this.eventSlotAdapter.eventToSlot(eventData);
-        await this.eventService.updateEvent(eventId, slot);
-        await this.loadEvents();
-    }
-
-    handleUpdateBlock = async (blockId, blockData) => {
-        // todo
-        const slot = this.eventSlotAdapter.eventToSlot(blockData);
-        await this.eventService.updateEvent(blockId, slot);
+    handleUpdateEvent = async (eventData) => {
+        if (eventData.isBlocked) {
+            const block = this.eventBlockAdapter.eventToBlock(eventData);
+            await this.eventService.updateBlock(eventData.id, block);
+        } else {
+            const slot = this.eventSlotAdapter.eventToSlot(eventData);
+            await this.eventService.updateEvent(eventData.id, slot);
+        }
+        
         await this.loadEvents();
     }
 
     handleAddEvent = async (eventData) => {
-        const slot = this.eventSlotAdapter.eventToSlot(eventData);
-        await this.eventService.addSlot(slot);
+        if (eventData.isBlocked) {
+            const block = this.eventBlockAdapter.eventToBlock(eventData);
+            await this.eventService.addBlock(block);
+        } else {
+            const slot = this.eventSlotAdapter.eventToSlot(eventData);
+            await this.eventService.addSlot(slot);
+        }
+        
         await this.loadEvents();
     }
     
@@ -90,16 +99,6 @@ class EventCalendar extends React.Component {
             this.setState({ visibleRange: {start: range.start, end: range.end}}, () => this.loadEvents());
         }
     };
-
-    handleSlotTypeChange = (event) => {
-        const { name, value } = event.target;
-        this.setState(prevState => ({
-            selectedEvent: {
-                ...prevState.selectedEvent,
-                [name]: value
-            }
-        }));
-    }
 
     scrollToFirstEvent = () => {
         // Поиск первого события в текущем видимом диапазоне
@@ -128,7 +127,12 @@ class EventCalendar extends React.Component {
     };
     
     handleDeleteEvent = async (eventId) => {
-        await this.eventService.deleteEvent(eventId);
+        if (this.state.selectedEvent.isBlocked) {
+            await this.eventService.deleteBlock(eventId);
+        } else {
+            await this.eventService.deleteEvent(eventId);
+        }
+        
         await this.loadEvents();
         this.closeModal();
     }
@@ -140,53 +144,69 @@ class EventCalendar extends React.Component {
             title: form.title.value,
             start: new Date(form.start.value),
             end: new Date(form.end.value),
-            phone: form.phone.value,
-            email: form.email.value,
-            type: form.type.value,
         };
 
+        if (this.state.selectedEvent !== undefined) {
+            eventData.isBlocked = this.state.selectedEvent.isBlocked;
+        }
+        
+        if (!eventData.isBlocked) {
+            eventData.phone = form.phone.value;
+            eventData.email = form.email.value;
+            eventData.type = form.type.value;
+        }
+        
         if (this.state.selectedEvent.id !== undefined) {
             eventData.id = this.state.selectedEvent.id;
-            if (eventData.isBlocked) {
-            } else {
-                await this.handleUpdateEvent(eventData.id, eventData);
-            }
+            await this.handleUpdateEvent(eventData);
         } else {
             await this.handleAddEvent(eventData);
         }
+        
         this.closeModal();
     }
 
     handleSelectSlot = ({ start, end }) => {
         // Пустой слот для создания нового события или блокировки
+        let selectedEvent;
+        
+        if (moment(start).isSame(end, 'day')) {
+            selectedEvent = EventFactory.createSlot({ startTime: start, endTime: end }).toJSON();
+        } else {
+            selectedEvent = EventFactory.createBlock({ startTime: start, endTime: end }).toJSON();
+            
+        }
+
         this.setState({
-            selectedEvent: EventFactory.createSlot({ startTime: start, endTime: end }).toJSON(),
+            selectedEvent: selectedEvent,
             modalIsOpen: true,
         });
     }
 
-    eventStyleGetter = event => {
-        const style = {
-            backgroundColor: event instanceof Block ? 'red' : '#3174ad',
-            borderRadius: '0px',
-            opacity: 0.8,
-            color: 'white',
-            border: '0px',
-            display: 'block'
-        };
-        return { style };
+    handleSelectBlock = (blockInfo) => {
+        this.setState({
+            modalIsOpen: true,
+            selectedEvent: EventFactory.createBlock({ startTime: blockInfo.start, endTime: blockInfo.end }).toJSON(),
+        });
     };
-
+    
     render() {
         return (
             <>
-                <button onClick={() => this.handleSelectSlot({ start: new Date(), end: moment(new Date()).add(45, 'minutes').toDate() })}>Добавить слот</button>
+                <button onClick={() => this.handleSelectSlot({
+                    start: new Date(),
+                    end: moment(new Date()).add(45, 'minutes').toDate()
+                })}>Добавить слот
+                </button>
+                <button onClick={() => this.handleSelectBlock({start: new Date(), end: new Date()})}>Добавить
+                    блокировку
+                </button>
                 <Calendar
                     localizer={localizer}
                     events={this.state.events}
                     startAccessor="start"
                     endAccessor="end"
-                    style={{ height: 500 }}
+                    style={{height: 500}}
                     selectable
                     onSelectEvent={this.handleSelectEvent}
                     onSelectSlot={this.handleSelectSlot}
@@ -209,9 +229,9 @@ class EventCalendar extends React.Component {
                             this.handleSubmitChanges(e);
                         }}>
                             {this.state.selectedEvent && this.state.selectedEvent.isBlocked ? (
-                                <BlockForm initialData={this.state.selectedEvent} />
+                                <BlockForm initialData={this.state.selectedEvent}/>
                             ) : (
-                                <SlotForm initialData={this.state.selectedEvent} baseUrl={this.baseUrl} />
+                                <SlotForm initialData={this.state.selectedEvent} baseUrl={this.baseUrl}/>
                             )}
                             <button type="submit">
                                 {this.state.selectedEvent && this.state.selectedEvent.id !== undefined ? 'Сохранить изменения' : 'Добавить событие'}
@@ -226,7 +246,7 @@ class EventCalendar extends React.Component {
     }
 }
 
-function EventWrapper({ event }) {
+function EventWrapper({event}) {
     // Определение стиля в зависимости от типа события
     const style = {
         backgroundColor: event.isBlocked ? 'red' : '#007bff',
@@ -247,11 +267,18 @@ function EventWrapper({ event }) {
 }
 
 function getCurrentWeekRange() {
-    const startOfWeek = new Date();
-    startOfWeek.setDate(startOfWeek.getDate() - startOfWeek.getDay() + 1);
-    const endOfWeek = new Date(startOfWeek);
-    endOfWeek.setDate(endOfWeek.getDate() + 6);
+    // Получаем начало текущей недели, учитывая часовой пояс
+    const startOfWeek = moment().startOf('week').toDate(); // начало недели
+
+    // Конец недели - это начало следующей недели минус одна миллисекунда
+    const endOfWeek = moment(startOfWeek).add(1, 'week').subtract(1, 'millisecond').toDate();
+
+    // Обнуление времени для обоих значений
+    startOfWeek.setHours(0, 0, 0, 0);
+    endOfWeek.setHours(23, 59, 59, 999); // Устанавливаем конец дня для endOfWeek
+
     return { start: startOfWeek, end: endOfWeek };
 }
+
 
 export default EventCalendar;

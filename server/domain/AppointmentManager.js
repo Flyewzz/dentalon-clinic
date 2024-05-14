@@ -19,7 +19,7 @@ class AppointmentManager {
         // Проверка на пересечение с блокировками
         const isBlocked = await this.checkForBlocks(req.startTime, endTime, req.doctorId);
         if (isBlocked) {
-            throw new BusinessError('This time slot is blocked and cannot be booked.');
+            throw new Error('Этот временной слот заблокирован и не может быть забронирован.');
         }
 
         req.endTime = endTime;
@@ -62,6 +62,7 @@ class AppointmentManager {
                 { endTime: { $gt: startTime }, startTime: { $lt: endTime } }
             ]
         }).lean();
+        
         return blocks.length > 0;
     }
 

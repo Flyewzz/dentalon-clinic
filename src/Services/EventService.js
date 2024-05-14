@@ -1,9 +1,33 @@
 import EventFactory from "./EventFactory";
+import {toast} from "react-toastify";
 
 class EventService {
     constructor(baseUrl) {
         this.baseUrl = baseUrl; // URL вашего API;
-        this.events = [];
+        this.toastOptions = {
+            position: "top-right",
+            autoClose: 4000,
+            pauseOnHover: true,
+            draggable: true,
+            // theme: "dark",
+        };
+    }
+
+    // Вспомогательная функция для проверки статуса ответа и показа сообщения об ошибке
+    async checkStatus(response) {
+        if (!response.ok) { // response.ok -> статус в диапазоне 200-299
+            try {
+                const errorData = await response.json();
+                const errorMessage = errorData.message || 'Что-то пошло не так';
+                toast.error(`Ошибка: ${errorMessage}`, this.toastOptions);
+                return Promise.reject(new Error(errorMessage));
+            } catch (e) {
+                // В случае, если не удалось извлечь JSON с ошибкой
+                toast.error(`Ошибка: Неизвестная ошибка сервера`, this.toastOptions);
+                return Promise.reject(new Error('Неизвестная ошибка сервера'));
+            }
+        }
+        return response;
     }
     
     login(res) {
@@ -32,6 +56,7 @@ class EventService {
 
         const response = await fetch(url, { ...options, headers });
         this.login(response); // Обновить токены если нужно
+        
         return response;
     }
     
@@ -48,42 +73,120 @@ class EventService {
             return data.map(item => EventFactory.createSlot(item));
         } catch (error) {
             console.error('Error fetching events:', error);
+            toast.error(`Ошибка получения слотов: ${error.message}`, this.toastOptions);
             return [];  // Возвращаем пустой массив в случае ошибки
         }
     }
 
     async fetchBlocks(start, end) {
-        const response = this.authenticatedRequest(`${this.apiUrl}/api/v1/blocks?startTime=${start.toISOString()}&endTime=${end.toISOString()}`);
-        const data = await response.json();
-        return data.map(blockData => EventFactory.createBlock(blockData));
+        try {
+            start = start.toISOString();
+            end = end.toISOString();
+            
+            const response = await this.authenticatedRequest(`${this.baseUrl}/blocks?startTime=${start}&endTime=${end}`);
+            
+            const data = await response.json();
+            return data.map(blockData => EventFactory.createBlock(blockData));
+        } catch (error) {
+            console.error('Error fetching blocks:', error);
+            toast.error(`Ошибка получения блокировок: ${error.message}`, this.toastOptions);
+             return [];
+        }
     }
 
-    async addSlot(slotData)  {
-        const response = await this.authenticatedRequest(`${this.baseUrl}/appointments`, {
-            method: 'POST',
-            body: JSON.stringify(slotData)
-        });
+    async addBlock(blockData)  {
+        try {
+            const response = await this.authenticatedRequest(`${this.baseUrl}/blocks`, {
+                method: 'POST',
+                body: JSON.stringify(blockData)
+            });
 
-        return await response.json();
+            await this.checkStatus(response);
+            return await response.json();
+        } catch (error) {
+            toast.error(`Ошибка создания блокировки: ${error.message}`, this.toastOptions);
+            return null;
+        }
+    };
+    
+    async addSlot(slotData)  {
+        try {
+            const response = await this.authenticatedRequest(`${this.baseUrl}/appointments`, {
+                method: 'POST',
+                body: JSON.stringify(slotData)
+            });
+
+            return await response.json();
+        } catch (error) {
+            toast.error(`Ошибка создания блокировки: ${error.message}`, this.toastOptions);
+            return null;
+        }
     };
 
     async updateEvent(id, eventData) {
-        const response = await this.authenticatedRequest(`${this.baseUrl}/appointments/${id}`, {
-            method: 'PUT',
-            body: JSON.stringify(eventData)
-        });
+        try {
+            const response = await this.authenticatedRequest(`${this.baseUrl}/appointments/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(eventData)
+            });
 
-        this.login(response);
-        return await response.json();
+            this.login(response);
+            await this.checkStatus(response);
+            
+            return await response.json();
+        } catch (error) {
+            toast.error(`Ошибка изменения записи: ${error.message}`, this.toastOptions);
+            return null;
+        }
     }
 
-    async deleteEvent(id) {
-        const response = await this.authenticatedRequest(`${this.baseUrl}/appointments/${id}`, {
-            method: 'DELETE',
-        });
+    async updateBlock(id, blockData) {
+        try {
+            const response = await this.authenticatedRequest(`${this.baseUrl}/blocks/${id}`, {
+                method: 'PUT',
+                body: JSON.stringify(blockData)
+            });
 
-        this.login(response);
-        return await response.json();
+            this.login(response);
+            await this.checkStatus(response);
+            
+            return await response.json();
+        } catch (error) {
+            toast.error(`Ошибка изменения блокировки: ${error.message}`, this.toastOptions);
+            return null;
+        }
+    }
+    
+    async deleteEvent(id) {
+        try {
+            const response = await this.authenticatedRequest(`${this.baseUrl}/appointments/${id}`, {
+                method: 'DELETE',
+            });
+            
+            this.login(response);
+            await this.checkStatus(response);
+            
+            return await response.json();
+        }
+        catch (error) {
+            toast.error(`Ошибка удаления записи: ${error.message}`, this.toastOptions);
+            return null;
+        }
+    }
+
+    async deleteBlock(id) {
+        try {
+            const response = await this.authenticatedRequest(`${this.baseUrl}/blocks/${id}`, {
+                method: 'DELETE',
+            });
+    
+            this.login(response);
+            await this.checkStatus(response);
+        }
+        catch (error) {
+            toast.error(`Ошибка удаления блокировки: ${error.message}`, this.toastOptions);
+            return null;
+        }
     }
 }
 
