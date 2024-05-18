@@ -31,8 +31,8 @@ class AppointmentService {
     async findAppointments(startTime, endTime, doctorId = 1) {
         try {
             return await Appointment.find({
-                startTime: {$gte: new Date(startTime)},
-                endTime: {$lte: new Date(endTime)},
+                startTime: {$lt: endTime},
+                endTime: {$gt: startTime},
                 doctorId: doctorId,
             });
         } catch (error) {

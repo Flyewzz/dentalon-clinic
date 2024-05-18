@@ -1,3 +1,5 @@
+require('./instrumentation');
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -8,27 +10,18 @@ const blockRoutes = require('./routes/blockAppointmentRoutes'); // Подклю�
 const ContractManager = require('./domain/ContractManager');
 const Appointment = require('./domain/model/Appointment');
 const moment = require('moment-timezone');
+const connectDB = require('./database');
 const TokenService = require('./services/TokenService');
 const { authenticated, authenticatedDoctor } = require('./middleware/authenticate');
 
 require('dotenv').config();
-// require('./instrumentation');
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-mongoose
-  .connect(process.env.MONGO_URL, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true,
-  })
-  .then(() => {
-    console.log('DB Connection Successfully');
-  })
-  .catch((err) => {
-    console.log(err.message);
-  });
+// Подключение к базе данных
+connectDB();
 
 const tokenService = new TokenService({
   jwt_secret: process.env.JWT_SECRET,
@@ -163,7 +156,9 @@ app.get('/dental-clinic/user/profile', authenticatedDoctor(tokenService), async 
   res.json(req.user);
 });
 
-app.listen(process.env.PORT, () => {
-  // console.log(require('crypto').randomBytes(32).toString('hex'));
-  console.log(`Server Started on Port ${process.env.PORT}`);
-});
+const PORT = process.env.PORT || 5000;
+if (require.main === module) {
+  app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+}
+
+module.exports = app;

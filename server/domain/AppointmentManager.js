@@ -1,6 +1,7 @@
 const Appointment = require("../domain/model/Appointment");
 const BlockAppointment = require("../domain/model/BlockAppointment");
 const moment = require('moment-timezone');
+const {NotFoundError} = require("../errors/Error");
 
 class AppointmentManager {
     constructor(appointmentService) {
@@ -9,19 +10,26 @@ class AppointmentManager {
     
     async findAppointments(req) {
         const { startTime, endTime, doctorId} = req.query;
-        return await this.appointmentService.findAppointments(startTime, endTime, doctorId);
+        return await this.appointmentService.findAppointments(new Date(startTime), new Date(endTime), doctorId);
     }
     
     async bookAppointmentForPatient(req) {
         const duration = req.type === 'consultation' ? 15 : 45;
+        const startTime = moment(req.startTime).toDate();
         const endTime = moment(req.startTime).clone().add(duration, 'minutes').toDate();
 
+        const overlapped = await this.appointmentService.findAppointments(startTime, endTime);
+        if (overlapped.length > 0) {
+            throw new NotFoundError('Этот временной слот занят и не может быть забронирован.');
+        }
+        
         // Проверка на пересечение с блокировками
-        const isBlocked = await this.checkForBlocks(req.startTime, endTime, req.doctorId);
+        const isBlocked = await this.checkForBlocks(startTime, endTime, req.doctorId);
         if (isBlocked) {
             throw new Error('Этот временной слот заблокирован и не может быть забронирован.');
         }
 
+        req.startTime = endTime;
         req.endTime = endTime;
         return await this.appointmentService.addAppointment(req);
     }

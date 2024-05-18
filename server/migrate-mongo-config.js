@@ -6,7 +6,7 @@ const config = {
     url: "mongodb://localhost:27017",
 
     // TODO Change this to your database name:
-    databaseName: "dentalon",
+    databaseName: "dentalon-test",
 
     options: {
       //   connectTimeoutMS: 3600000, // increase connection timeout to 1 hour
