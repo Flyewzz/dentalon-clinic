@@ -1,4 +1,4 @@
-require('./instrumentation');
+// require('./instrumentation');
 
 const express = require('express');
 const cors = require('cors');

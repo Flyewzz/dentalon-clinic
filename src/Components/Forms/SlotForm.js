@@ -9,6 +9,17 @@ function SlotForm({ initialData, baseUrl }) {
     const [phone, setPhone] = useState(initialData.phone || '');
     const [email, setEmail] = useState(initialData.email || '');
     const [type, setType] = useState(initialData.type || 'consultation');
+    // const [questions, setQuestions] = useState(initialData.questions || []);
+
+    // const handleQuestionChange = (index, field, value) => {
+    //     const updatedQuestions = questions.map((question, qIndex) => {
+    //         if (qIndex === index) {
+    //             return { ...question, [field]: value };
+    //         }
+    //         return question;
+    //     });
+    //     setQuestions(updatedQuestions);
+    // };
 
     return (
         <>
@@ -21,6 +32,17 @@ function SlotForm({ initialData, baseUrl }) {
             <input type="datetime-local" name="end" value={end} onChange={(e) => setEnd(e.target.value)} />
             <input type="text" name="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Телефон" />
             <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+            {initialData.questions.length > 0 && (
+                <div className="questions-container">
+                    <h4 className="questions-title">Вопросы и ответы от пациента</h4>
+                    {initialData.questions.map((q, index) => (
+                        <div key={index} className="question-answer">
+                            <p className="question">{q.question}</p>
+                            <div className="answer">{q.answer}</div>
+                        </div>
+                    ))}
+                </div>
+            )}
             {initialData.id !== undefined && (
                 <div>
                     <h3 className="download-section-title">Документы для скачивания:</h3>

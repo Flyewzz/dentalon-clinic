@@ -47,6 +47,10 @@ const appointmentSchema = new mongoose.Schema({
         },
         sparse: true,  // Это свойство позволяет полям быть уникальными и определенными только когда они не пусты
     }, // Опциональный email клиента
+    questions: [{
+        question: { type: String, required: true },
+        answer: { type: String, required: true }
+    }]
 });
 
 appointmentSchema.pre('save', function(next) {

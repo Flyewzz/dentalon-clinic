@@ -65,19 +65,6 @@
     background-color: #f7f7f7;
 }
 
-.ReactModal__Overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0, 0, 0, 0.5); /* Полупрозрачный черный фон для затемнения страницы */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1050;
-}
-
 .ReactModal__Overlay--after-open {
     opacity: 1;
     transition: opacity 200ms ease-in-out;
@@ -95,10 +82,29 @@
     padding: 20px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Тень для добавления глубины */
     max-width: 500px; /* Ограничение максимальной ширины модального окна */
+    max-height: 80vh; /* Ограничение максимальной высоты окна до 80% от высоты экрана */
     width: auto;
-    height: min-content;
+    height: auto;
     color: #333; /* Темно-серый цвет текста для контрастности */
     z-index: 1100;
+    scrollbar-width: thin; /* Для Firefox */
+}
+
+.ReactModal__Content::-webkit-scrollbar {
+    width: 12px; /* Ширина scrollbar для Chrome, Safari и Opera */
+}
+
+.ReactModal__Content::-webkit-scrollbar-thumb {
+    background: #888; /* Цвет ползунка */
+    border-radius: 10px;
+}
+
+.ReactModal__Content::-webkit-scrollbar-thumb:hover {
+    background: #555; /* Цвет ползунка при наведении */
+}
+
+.ReactModal__Content::-webkit-scrollbar-track {
+    background: #f0f0f0; /* Цвет фона scrollbar */
 }
 
 /* Стили для текстовых полей внутри модального окна */
@@ -214,4 +220,32 @@
     display: inline-table !important;
     flex: 0 0 0 !important;
     min-height: 50px !important;
+}
+
+
+.questions-container {
+    width: 100%; /* Ensure the questions container takes the full width */
+}
+
+.questions-title {
+    text-align: left; /* Align title to the left */
+    margin-bottom: 10px; /* Space between the title and questions */
+}
+
+.question-answer {
+    display: flex;
+    justify-content: space-between; /* Space between question and answer */
+    align-items: center; /* Align items vertically */
+    padding: 10px 0; /* Padding for better spacing */
+    border-bottom: 1px solid #ddd; /* Border to separate each question */
+}
+
+.question {
+    flex: 1; /* Ensure question takes available space */
+}
+
+.answer {
+    flex: 1; /* Ensure answer takes available space */
+    text-align: right; /* Align answer to the right */
+    font-weight: bold;
 }

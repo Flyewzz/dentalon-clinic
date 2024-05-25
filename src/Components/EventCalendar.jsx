@@ -154,6 +154,7 @@ class EventCalendar extends React.Component {
             eventData.phone = form.phone.value;
             eventData.email = form.email.value;
             eventData.type = form.type.value;
+            // eventData.questions = this.state.selectedEvent.questions; // добавляем вопросы и ответы
         }
         
         if (this.state.selectedEvent.id !== undefined) {
@@ -169,12 +170,12 @@ class EventCalendar extends React.Component {
     handleSelectSlot = ({ start, end }) => {
         // Пустой слот для создания нового события или блокировки
         let selectedEvent;
-        
-        if (moment(start).isSame(end, 'day')) {
+
+        const duration = moment(end).diff(moment(start), 'hours');
+        if (duration < 12) {
             selectedEvent = EventFactory.createSlot({ startTime: start, endTime: end }).toJSON();
         } else {
             selectedEvent = EventFactory.createBlock({ startTime: start, endTime: end }).toJSON();
-            
         }
 
         this.setState({

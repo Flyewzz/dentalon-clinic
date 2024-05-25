@@ -7,6 +7,10 @@ const scheduleSchema = new mongoose.Schema({
         startTime: String,  // Начало работы, например, "09:00"
         endTime: String,    // Конец работы, например, "18:00"
         blocked: Boolean    // Признак блокировки работы в этот день
+    }],
+    questions: [{
+        question: { type: String, required: true },
+        options: { type: [String], default: ['Да', 'Нет'] }
     }]
 });
 

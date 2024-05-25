@@ -29,7 +29,7 @@ class AppointmentManager {
             throw new Error('Этот временной слот заблокирован и не может быть забронирован.');
         }
 
-        req.startTime = endTime;
+        req.startTime = startTime;
         req.endTime = endTime;
         return await this.appointmentService.addAppointment(req);
     }

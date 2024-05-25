@@ -8,12 +8,13 @@ class Event {
 }
 
 class Slot extends Event {
-    constructor(id, title, startTime, endTime, phone, email, type) {
+    constructor(id, title, startTime, endTime, phone, email, type, questions = []) {
         super(id, title, startTime, endTime);
         this.phone = phone;
         this.email = email;
         this.isBlocked = false;
         this.type = type;
+        this.questions = questions;
     }
     
     toJSON() {
@@ -25,6 +26,7 @@ class Slot extends Event {
             phone: this.phone,
             email: this.email,
             type: this.type,
+            questions: this.questions,
             isBlocked: false,
         }
     }

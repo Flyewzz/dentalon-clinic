@@ -3,6 +3,7 @@
 const AppointmentManager = require('../domain/AppointmentManager');
 const SlotManager = require('../domain/SlotManager');
 const AppointmentService = require('../services/mongo/AppointmentService');
+const Schedule = require('../domain/model/Schedule');
 
 const appointmentService = new AppointmentService();
 const appointmentManager = new AppointmentManager(appointmentService);
@@ -63,3 +64,18 @@ exports.getSlots = function(timezone) {
         }
     }
 }
+
+// New endpoint to retrieve questions for a doctor
+exports.getDoctorQuestions = async (req, res) => {
+    try {
+        const { doctorId } = req.params;
+        const schedule = await Schedule.findOne({ doctorId });
+        if (!schedule) {
+            return res.status(404).json({ message: 'Врач не найден' });
+        }
+        
+        res.status(200).json(schedule.questions);
+    } catch (error) {
+        res.status(error.statusCode || 500).json({ message: error.message });
+    }
+};

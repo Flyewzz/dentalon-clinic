@@ -14,6 +14,7 @@ function appointmentRoutes(dependencies) {
     router.post('/', authenticateOptional(tokenService), appointmentController.bookAppointment);
     router.delete('/:appointmentId', appointmentController.cancelAppointment);
     router.put('/:appointmentId', appointmentController.updateAppointment);
+    router.get('/doctor/:doctorId/questions', appointmentController.getDoctorQuestions);
     
     return router;
 }

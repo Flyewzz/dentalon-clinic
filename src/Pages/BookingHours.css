@@ -375,3 +375,29 @@ form {
   color: #ffffff;     /* Цвет текста, если нужно */
 }
 
+.question-container {
+  margin-bottom: 10px;
+}
+
+.options-container {
+  display: flex;
+  gap: 10px; /* Разделяет опции */
+  flex-wrap: wrap; /* Позволяет перенос на новую строку для мобильных устройств */
+}
+
+.option-label {
+  display: flex;
+  align-items: center;
+  margin-right: 10px; /* Отступ между опциями */
+}
+
+.option-label input {
+  margin-right: 5px; /* Отступ между радиокнопкой и текстом */
+}
+
+/* Дополнительные стили для адаптивности */
+@media (max-width: 600px) {
+  .option-label {
+    margin-right: 0; /* Убираем отступ между опциями */
+  }
+}

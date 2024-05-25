@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import Logo from '../assets/logo.png';
 import {toast, ToastContainer} from 'react-toastify';
 import './BookingHours.css';
@@ -6,12 +6,19 @@ import {useNavigate} from 'react-router-dom';
 import Spinner from '../Components/Spinner';
 import PhoneInput from 'react-phone-number-input';
 import 'react-phone-number-input/style.css';
+import moment from "moment-timezone";
+
+const timeZone = process.env.REACT_APP_TIME_ZONE || 'UTC';
+console.log(`timezone: ${timeZone}`);
 
 const BookingHours = (props) => {
   const apiBaseUrl = props.apiBaseUrl;
   const url = `${apiBaseUrl}/appointments`;
   const navigate = useNavigate();
-  const [date, setDate] = useState('');
+  const [date, setDate] = useState(() => {
+    return moment().tz(timeZone).format('YYYY-MM-DD');
+  });
+  const slotsRef = useRef(null);
   
   const [loader, setLoader] = useState('none');
   const [activeUser, setActiveUser] = useState({
@@ -23,21 +30,14 @@ const BookingHours = (props) => {
   });
   const [btn, setBtn] = useState(0);
   const [slots, setSlots] = useState([]);
-
+  const [questions, setQuestions] = useState([]);
+  const [answers, setAnswers] = useState({});
   const [selectedSlotIndex, setSelectedSlotIndex] = useState(null);
   const [selectedType, setSelectedType] = useState('consultation'); // По умолчанию устанавливаем консультацию
 
-  function formatTimeSlot(dateString) {
-    const date = new Date(dateString);
-
-    // Форматирование начального времени с учётом часового пояса
-    return date.toLocaleTimeString('ru-RU', {
-      // timeZone: 'Europe/Moscow',
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-  }
+  const formatTimeSlot = (dateString) => {
+    return moment(dateString).tz(timeZone).format('HH:mm');
+  };
   
   useEffect(() => {
     async function fetchSlots() {
@@ -49,6 +49,11 @@ const BookingHours = (props) => {
         
         setSlots(data); // Обновление слотов
         setSelectedSlotIndex(null); // Сброс выбранного слота
+
+        // Прокрутка к слотам на мобильных устройствах
+        if (window.innerWidth <= 600 && slotsRef.current) {
+          slotsRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
       } catch (error) {
         console.error('Error fetching slots:', error);
       }
@@ -56,7 +61,33 @@ const BookingHours = (props) => {
 
     fetchSlots();
   }, [selectedType, date, apiBaseUrl]);
-  
+
+  useEffect(() => {
+    async function fetchQuestions() {
+      if (selectedType === 'consultation') {
+        try {
+          // Получение вопросов врача (ID врача пока статически равен 1)
+          const response = await fetch(`${apiBaseUrl}/appointments/doctor/1/questions`);
+          const data = await response.json();
+          setQuestions(data);
+        } catch (error) {
+          console.error('Ошибка при получении вопросов:', error);
+        }
+      } else {
+        setQuestions([]);
+      }
+    }
+    
+    fetchQuestions();
+  }, [selectedType, apiBaseUrl]);
+
+  const handleAnswerChange = (questionIndex, answer) => {
+    setAnswers({
+      ...answers,
+      [questionIndex]: answer
+    });
+  };
+
   const toastOptions = {
     position: 'top-right',
     autoClose: 8000,
@@ -145,7 +176,11 @@ const BookingHours = (props) => {
       email,
       phone,
       startTime,
-      type: selectedType, 
+      type: selectedType,
+      questions: questions.map((question, index) => ({
+        question: question.question,
+        answer: answers[index]
+      }))
     };
 
     if (handleValidation()) {
@@ -162,8 +197,7 @@ const BookingHours = (props) => {
         });
 
         if (res.status === 201) {
-          console.log('Your data submitted to the server.');
-          toast.success('Successfully made an appointment', toastOptions);
+          toast.success('Вы успешно записались на прием', toastOptions);
 
           const form = event.target;
           form.reset();
@@ -175,7 +209,7 @@ const BookingHours = (props) => {
           const data = await res.json();
           toast.error(data.message, toastOptions);
         } else {
-          console.error('An error occurred while processing your request.');
+          console.error('Возникла ошибка при обработке вашего запроса');
           const data = await res.json();
           toast.error(data.message, toastOptions);
         }
@@ -192,6 +226,10 @@ const BookingHours = (props) => {
     }
   };
 
+  // Ограничение максимальной даты для записи на месяц вперед
+  const maxDate = new Date();
+  maxDate.setMonth(maxDate.getMonth() + 1);
+  
   return (
     <>
       <div className="booking_section_container">
@@ -212,20 +250,45 @@ const BookingHours = (props) => {
                         <option value="treatment">Лечение</option>
                       </select>
                     </div>
+                      {selectedType === 'consultation' && questions.length > 0 && (
+                          <div className="in__container">
+                            <h3>Вопросы от врача:</h3>
+                            {questions.map((question, index) => (
+                                <div key={index} className="question-container">
+                                  <p>{question.question}</p>
+                                  <div className="options-container">
+                                    {question.options.map((option, i) => (
+                                        <label key={i} className="option-label">
+                                          <input
+                                              type="radio"
+                                              name={`question-${index}`}
+                                              value={option}
+                                              onChange={() => handleAnswerChange(index, option)}
+                                              required
+                                          />
+                                          {option}
+                                        </label>
+                                    ))}
+                                  </div>
+                                </div>
+                            ))}
+                          </div>
+                      )}
                     <div className="in__container">
                       <label>Выберите дату записи</label>
                       <input
                           type="date"
                           name="date"
                           style={{color: 'White' }}
-                        value={date}
-                        defaultValue= { getCurrentDate() }
-                        min={ getCurrentDate() }
-                        onChange={(event) => {
-                          const selectedDate = event.target.value;
-                          if (checkDate(selectedDate)) {
-                            handleInputs(event);
-                          }
+                          value={date}
+                          defaultValue= { getCurrentDate() }
+                          min={ getCurrentDate() }
+                          max={maxDate.toISOString().split('T')[0]}
+                          onChange={(event) => {
+                            const selectedDate = event.target.value;
+                            if (checkDate(selectedDate)) {
+                              handleInputs(event);
+                            }
                           
                           handleDateChange(event);
                         }}
@@ -265,27 +328,14 @@ const BookingHours = (props) => {
                           onChange={handleInputs}
                           required
                       />
-                      {/*<input*/}
-                      {/*  type="tel"*/}
-                      {/*  placeholder="Введите ваш номер телефона"*/}
-                      {/*  name="phone"*/}
-                      {/*  value={activeUser.phone}*/}
-                      {/*  onChange={handleInputs}*/}
-                      {/*  onKeyPress={(event) => {*/}
-                      {/*    if (event.target.value.length >= 15) {*/}
-                      {/*      event.preventDefault();*/}
-                      {/*    }*/}
-                      {/*  }}*/}
-                      {/*  required*/}
-                      {/*/>*/}
                     </div>
                   </div>
                 </div>
               </div>
               <div className="me_slot_selection">
-                <div className="bsc_lower_morning_container">
+                <div className="bsc_lower_morning_container" ref={slotsRef}>
                   <div><span>Свободные слоты</span></div>
-                  <div className="morning_info_container" id="container45">
+                  <div className="morning_info_container" id="container45" ref={slotsRef}>
 
                     {slots !== undefined && slots.length > 0 ? (
                         slots.map((slot, index) => (
