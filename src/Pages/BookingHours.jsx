@@ -15,14 +15,11 @@ const BookingHours = (props) => {
   const apiBaseUrl = props.apiBaseUrl;
   const url = `${apiBaseUrl}/appointments`;
   const navigate = useNavigate();
-  const [date, setDate] = useState(() => {
-    return moment().tz(timeZone).format('YYYY-MM-DD');
-  });
   const slotsRef = useRef(null);
   
   const [loader, setLoader] = useState('none');
   const [activeUser, setActiveUser] = useState({
-    date: '',
+    date: moment().tz(timeZone).format('YYYY-MM-DD'),
     name: '',
     email: '',
     phone: '',
@@ -41,10 +38,10 @@ const BookingHours = (props) => {
   
   useEffect(() => {
     async function fetchSlots() {
-      if (!date) return;
+      if (!activeUser.date) return;
 
       try {
-        const response = await fetch(`${apiBaseUrl}/appointments?date=${date}&type=${selectedType}`);
+        const response = await fetch(`${apiBaseUrl}/appointments?date=${activeUser.date}&type=${selectedType}`);
         const data = await response.json();
         
         setSlots(data); // Обновление слотов
@@ -60,7 +57,7 @@ const BookingHours = (props) => {
     }
 
     fetchSlots();
-  }, [selectedType, date, apiBaseUrl]);
+  }, [selectedType, activeUser.date, apiBaseUrl]);
 
   useEffect(() => {
     async function fetchQuestions() {
@@ -117,24 +114,12 @@ const BookingHours = (props) => {
     const formattedDate = now.toISOString().split('T')[0];
     console.log(formattedDate);
     if (selectedDate < formattedDate) {
-      alert('Date must be in the future');
+      alert('Дата должна быть в будущем');
       return false;
     }
 
     return true;
   }
-
-  function getCurrentDate() {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = `${today.getMonth() + 1}`.padStart(2, '0'); // Месяцы начинаются с 0
-    const day = `${today.getDate()}`.padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  }
-
-  const handleDateChange = (event) => {
-    setDate(event.target.value);
-  };
   
   const handleValidation = () => {
     const { date, name, email, phone, time } = activeUser;
@@ -227,6 +212,7 @@ const BookingHours = (props) => {
   };
 
   // Ограничение максимальной даты для записи на месяц вперед
+  const minDate = moment().tz(timeZone).format('YYYY-MM-DD');
   const maxDate = new Date();
   maxDate.setMonth(maxDate.getMonth() + 1);
   
@@ -280,17 +266,14 @@ const BookingHours = (props) => {
                           type="date"
                           name="date"
                           style={{color: 'White' }}
-                          value={date}
-                          defaultValue= { getCurrentDate() }
-                          min={ getCurrentDate() }
+                          value={activeUser.date}
+                          min={ minDate }
                           max={maxDate.toISOString().split('T')[0]}
                           onChange={(event) => {
                             const selectedDate = event.target.value;
                             if (checkDate(selectedDate)) {
                               handleInputs(event);
                             }
-                          
-                          handleDateChange(event);
                         }}
                         
                         required
