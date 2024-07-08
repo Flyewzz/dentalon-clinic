@@ -24,26 +24,26 @@ function LowerFooter() {
   ];
 
   const nav_data = [
-    { index: 1, link_to: '/#home', nav_name: 'Home' },
-    { index: 2, link_to: '/#about-doctors', nav_name: 'About' },
-    { index: 3, link_to: '/#our-services', nav_name: 'Treatments' },
+    { index: 1, link_to: '/#home', nav_name: 'Главная' },
+    { index: 2, link_to: '/#about-doctors', nav_name: 'О нас' },
+    { index: 3, link_to: '/dental-clinic/services', nav_name: 'Наши услуги' },
     {
       index: 4,
       link_to: '/dental-clinic/appointment',
-      nav_name: 'Appointment',
+      nav_name: 'Запись на прием',
     },
-    { index: 5, link_to: '/#contact-us', nav_name: 'Contact Us' },
+    { index: 5, link_to: '/#contact-us', nav_name: 'Контакты' },
   ];
   const contact_data = [
     {
       index: 1,
       title: 'Email:',
-      cu_data: ' ghadgekomal51@gmail.com',
+      cu_data: ' dentalon@mail.ru',
     },
     {
       index: 2,
-      title: 'Phone:',
-      cu_data: ' 7261922208',
+      title: 'Телефон:',
+      cu_data: ' +7(4152)267-268',
     },
   ];
 
@@ -72,34 +72,9 @@ function LowerFooter() {
   return (
     <>
       <div className="lower_outer_footer_container">
-        <div className="about_us">
-          <div className="wrapper_container_ab">
-            <h2>About Us</h2>
-            <p data-aos="fade-right">{about_long_des_data.text}</p>
-          </div>
-        </div>
-        <div className="recent_posts">
-          <h2>Recent Post</h2>
-          {contact_recent_data.map((data, index) => {
-            return (
-              <div
-                className="rp_data"
-                key={index}
-                data-aos="fade-down"
-                data-aos-duration="1000"
-              >
-                <img src={data.rp_img} alt="" />
-                <div className="rp_compile_container">
-                  <p>{data.rp_text}</p>
-                  <a href="#">{data.rp_btn}</a>
-                </div>
-              </div>
-            );
-          })}
-        </div>
         <div className="footer_menu">
           <div className="wrapper_container_fm">
-            <h2>Footer Menu</h2>
+            <h2>Нижнее меню</h2>
             <div className="footer_data_menu">
               {nav_data.map((data, index) => {
                 return (
@@ -119,15 +94,14 @@ function LowerFooter() {
         </div>
         <div className="contact_us">
           <div className="wrapper_container_cu">
-            <h2>Contact Us</h2>
+            <h2>Контакты</h2>
             <div
               className="contact_address"
               data-aos="fade-down"
               data-aos-duration="1000"
             >
               <address>
-                plot no 178, Shop- C13, Sai Sapphire, 180, Sector 20, Ulwe,
-                Maharashtra 410206, India
+                Камчатский край, Петропавловск-Камчатский, проспект Рыбаков, 13
               </address>
             </div>
             <div className="contact_data">

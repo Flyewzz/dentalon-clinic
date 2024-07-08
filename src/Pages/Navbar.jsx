@@ -42,7 +42,7 @@ const Navbar = () => {
             </HashLink>
           </div>
           <div className="MenuItems">
-            <HashLink to="/#our-services" onClick={closeMobileMenu}>
+            <HashLink to="/dental-clinic/services" onClick={closeMobileMenu}>
               Услуги
             </HashLink>
           </div>

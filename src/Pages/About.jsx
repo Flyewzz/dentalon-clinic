@@ -16,23 +16,14 @@ const About = () => {
             <span className="about_title_logo">
               <i class="fa-solid fa-angles-right"></i>
             </span>
-            About US
+            О нас
           </h2>
           <div className="about_container">
             <div className="about_infos">
               <p className="about_short_descrp">
-                We’re glad you hand your dental health concerns to our skilled
-                hands.
+                Мы рады, что вы доверили заботу о здоровье ваших зубов нашим профессионалам.
               </p>
               <p className="about_long_descrp">{about_long_des_data.text}</p>
-              <div className="about_align_btn">
-                <Link
-                  to={"/dental-clinic/team"}
-                  style={{ textDecoration: "none", color: "#fff" }}
-                >
-                  <button className="more_info_btn">Read More</button>
-                </Link>
-              </div>
             </div>
             <div className="about_image">
               <img src={about_img} alt="about img" />

@@ -15,6 +15,7 @@ import UserProfile from './Pages/UserProfile';
 import ApBooking from './Components/ApBooking';
 import Dashboard from './Pages/PagesData/Admin/Dashboard';
 import DoctorDashboard from "./Pages/DoctorDashboard";
+import PriceList from "./Pages/PriceList";
 import ProtectedRoute from "./Utils/ProtectedRoute";
 
 const App = () => {
@@ -60,6 +61,8 @@ const App = () => {
         <Route exact path="/dental-clinic/doctor-dashboard" element={
           <ProtectedRoute><DoctorDashboard baseUrl={process.env.REACT_APP_SERVER_BASE_URL} /></ProtectedRoute>
         } />
+        
+        <Route exact path="/dental-clinic/services" element=<PriceList /> />
       </Routes>
     </>
   );
