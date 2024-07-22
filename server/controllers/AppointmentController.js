@@ -1,8 +1,10 @@
 // appointmentController.js
 
 const AppointmentManager = require('../domain/AppointmentManager');
+const NotificationManager = require('../domain/NotificationManager');
 const SlotManager = require('../domain/SlotManager');
 const AppointmentService = require('../services/mongo/AppointmentService');
+const BlockAppointmentService = require('../services/mongo/BlockAppointmentService');
 const NotificationService = require('../services/mongo/notifications/NotificationService');
 
 const TransactionManager = require('../services/mongo/TransactionManager');
@@ -10,10 +12,13 @@ const TransactionManager = require('../services/mongo/TransactionManager');
 const Schedule = require('../domain/model/Schedule');
 
 const appointmentService = new AppointmentService();
+const blockAppointmentService = new BlockAppointmentService();
+
 const notificationService = new NotificationService();
+const notificationManager = new NotificationManager(notificationService);
 
 const appointmentManager = new AppointmentManager(
-    appointmentService, notificationService, new TransactionManager(),
+    appointmentService, blockAppointmentService, notificationManager,
 );
 // Предполагаем, что SlotManager правильно инициализирован и готов к использованию
 const slotManager = new SlotManager(1); // ID врача пока статичен

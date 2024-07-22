@@ -1,8 +1,7 @@
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
-    appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'appointment' },
-    originalAppointmentId: { type: String },
+    appointmentId: { type: mongoose.Schema.Types.ObjectId, ref: 'appointment', required: true },
     type: { type: String, required: true, enum: [
         'week', 'twoDays', 'threeHours', 'booking', 'reschedule', 'cancellation',
     ] },
@@ -12,6 +11,7 @@ const notificationSchema = new mongoose.Schema({
     contact: { type: String, required: true },  // Номер телефона или email
     createdAt: { type: Date, default: Date.now },
     scheduledAt: { type: Date, required: true },
+    deletedAt: { type: Date },
 });
 
 // Индексы для оптимизации поиска

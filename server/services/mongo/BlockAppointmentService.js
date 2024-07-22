@@ -1,6 +1,7 @@
 const Block = require('../../domain/model/BlockAppointment');
 const {Error} = require("mongoose");
 const {ValidationError, DatabaseError, NotFoundError} = require("../../errors/Error");
+const BlockAppointment = require("../../domain/model/BlockAppointment");
 
 class BlockService {
     async findOverlappedBlocks(startTime, endTime, doctorId = 1) {
@@ -9,6 +10,7 @@ class BlockService {
                 startTime: {$lt: new Date(endTime)},
                 endTime: {$gt: new Date(startTime)},
                 doctorId: doctorId,
+                deletedAt: { $exists: false },
             });
         } catch (error) {
             this.handleError(error);
@@ -34,7 +36,7 @@ class BlockService {
     }
     
     async deleteBlock(blockId) {
-        return await Block.findByIdAndDelete(blockId);
+        return await Block.findByIdAndUpdate(blockId, { deletedAt: new Date() });
     }
     
     static async checkOverlap({ doctorId, startTime, endTime }) {
@@ -42,7 +44,21 @@ class BlockService {
             startTime: { $lt: endTime },
             endTime: { $gt: startTime },
             doctorId,
+            deletedAt: { $exists: false },
         });
+    }
+
+    async checkForBlocks(startTime, endTime, doctorId, session) {
+        const blocks = await BlockAppointment.find({
+            doctorId,
+            $or: [
+                { startTime: { $lt: endTime }, endTime: { $gt: startTime } },
+                { endTime: { $gt: startTime }, startTime: { $lt: endTime } }
+            ],
+            deletedAt: { $exists: false },
+        }).session(session).lean();
+
+        return blocks.length > 0;
     }
 
     handleError(error) {
@@ -50,6 +66,8 @@ class BlockService {
             throw new ValidationError(error.message);
         } else if (error instanceof Error.CastError) {
             throw new ValidationError('Invalid data format');
+        } else if (error instanceof NotFoundError) {
+             throw error;  
         } else {
             throw new DatabaseError('Database error occurred');
         }

@@ -5,6 +5,7 @@ const blockSchema = new mongoose.Schema({
     startTime: { type: Date, required: true },
     endTime: { type: Date, required: true },
     title: { type: String, required: true },  // Причина блокировки
+    deletedAt: { type: Date },
 });
 
 const Block = mongoose.model('Block', blockSchema);

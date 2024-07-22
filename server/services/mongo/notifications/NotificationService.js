@@ -10,6 +10,7 @@ class NotificationService {
                 type: type,
                 status: 'pending',
                 scheduledAt: {$lte: new Date()},
+                deletedAt: {$exists: false},
             }).session(session);
         } catch (error) {
             this.handleError(error);
@@ -17,10 +18,10 @@ class NotificationService {
     }
 
     async createNotification(req, session = null) {
-        req.created_at = new Date();
+        req.createdAt = new Date();
         req.status = 'pending';
         req.deliveryType = 'sms';
-        req.scheduledAt = req.scheduledAt ?? req.created_at;
+        req.scheduledAt = req.scheduledAt ?? req.createdAt;
             
         try {
             const notification = new Notification(req);
@@ -67,10 +68,12 @@ class NotificationService {
             this.handleError(error);
         }
     }
-
-    async cancelNotificationsByAppointmentId(appointmentId, session = null) {
+    
+    async deleteNotificationsByAppointmentId(appointmentId, session = null) {
         try {
-            await Notification.deleteMany({appointmentId, status: 'pending'}).session(session).lean();
+            await Notification.updateMany(
+                {appointmentId, status: 'pending'}, {deletedAt: new Date()},
+            ).session(session).lean();
         } catch (error) {
             this.handleError(error);
         }
@@ -81,6 +84,8 @@ class NotificationService {
             throw new ValidationError(error.message);
         } else if (error instanceof Error.CastError) {
             throw new ValidationError('Invalid data format');
+        } else if (error instanceof NotFoundError) {
+            throw error;
         } else {
             throw new DatabaseError('Database error occurred');
         }

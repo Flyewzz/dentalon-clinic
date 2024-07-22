@@ -45,6 +45,7 @@ const appointmentSchema = new mongoose.Schema({
         answer: { type: String, required: true }
     }],
     createdAt: { type: Date, default: Date.now },
+    deletedAt: { type: Date },
 });
 
 appointmentSchema.pre('save', function(next) {

@@ -5,7 +5,10 @@ const {Error} = require("mongoose");
 class AppointmentService {
     async findAppointmentById(id, session = null) {
         try {
-            const appointment = await Appointment.findById(id).session(session);
+            const appointment = await Appointment.findOne({
+                _id: id,
+                deletedAt: { $exists: false },
+            }).session(session).lean();
             if (!appointment) {
                 throw new NotFoundError('Appointment not found');
             }
@@ -21,6 +24,7 @@ class AppointmentService {
                 startTime: {$lt: new Date(endTime)},
                 endTime: {$gt: new Date(startTime)},
                 doctorId: doctorId,
+                deletedAt: { $exists: false },
             }).session(session);
         } catch (error) {
             this.handleError(error);
@@ -33,7 +37,8 @@ class AppointmentService {
                 startTime: {$lt: endTime},
                 endTime: {$gt: startTime},
                 doctorId: doctorId,
-            }).session(session);
+                deletedAt: { $exists: false },
+            }).session(session).lean();
         } catch (error) {
             this.handleError(error);
         }
@@ -65,7 +70,9 @@ class AppointmentService {
 
     async deleteAppointment(appointmentId, session = null) {
         try {
-            const result = await Appointment.findByIdAndDelete(appointmentId).session(session);
+            const result = await Appointment.findByIdAndUpdate(
+                appointmentId, { deletedAt: new Date() },
+            ).session(session);
             if (!result) {
                 throw new NotFoundError(`Appointment ${appointmentId} not found`);
             }
@@ -81,6 +88,8 @@ class AppointmentService {
             throw new ValidationError(error.message);
         } else if (error instanceof Error.CastError) {
             throw new ValidationError('Invalid data format');
+        } else if (error instanceof NotFoundError) {
+            throw error;
         } else {
             throw new DatabaseError('Database error occurred');
         }

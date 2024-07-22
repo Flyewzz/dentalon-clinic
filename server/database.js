@@ -1,4 +1,10 @@
 const mongoose = require('mongoose');
+
+const ObjectId = mongoose.Types.ObjectId;
+ObjectId.prototype.valueOf = function () {
+    return this.toString();
+};
+
 require('dotenv').config();
 
 const connectDB = async () => {
