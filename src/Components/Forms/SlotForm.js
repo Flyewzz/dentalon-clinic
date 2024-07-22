@@ -7,7 +7,7 @@ function SlotForm({ initialData, baseUrl }) {
     const [start, setStart] = useState(initialData.start ? moment(initialData.start).format('YYYY-MM-DDTHH:mm') : '');
     const [end, setEnd] = useState(initialData.end ? moment(initialData.end).format('YYYY-MM-DDTHH:mm') : '');
     const [phone, setPhone] = useState(initialData.phone || '');
-    const [email, setEmail] = useState(initialData.email || '');
+    const [address, setAddress] = useState(initialData.address || '');
     const [type, setType] = useState(initialData.type || 'consultation');
     // const [questions, setQuestions] = useState(initialData.questions || []);
 
@@ -31,7 +31,7 @@ function SlotForm({ initialData, baseUrl }) {
             <input type="datetime-local" name="start" value={start} onChange={(e) => setStart(e.target.value)} />
             <input type="datetime-local" name="end" value={end} onChange={(e) => setEnd(e.target.value)} />
             <input type="text" name="phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Телефон" />
-            <input type="email" name="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" />
+            <input type="text" name="address" value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Адрес" />
             {initialData.questions.length > 0 && (
                 <div className="questions-container">
                     <h4 className="questions-title">Вопросы и ответы от пациента</h4>

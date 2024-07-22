@@ -3,12 +3,30 @@
 const AppointmentManager = require('../domain/AppointmentManager');
 const SlotManager = require('../domain/SlotManager');
 const AppointmentService = require('../services/mongo/AppointmentService');
+const NotificationService = require('../services/mongo/notifications/NotificationService');
+
+const TransactionManager = require('../services/mongo/TransactionManager');
+
 const Schedule = require('../domain/model/Schedule');
 
 const appointmentService = new AppointmentService();
-const appointmentManager = new AppointmentManager(appointmentService);
+const notificationService = new NotificationService();
+
+const appointmentManager = new AppointmentManager(
+    appointmentService, notificationService, new TransactionManager(),
+);
 // Предполагаем, что SlotManager правильно инициализирован и готов к использованию
 const slotManager = new SlotManager(1); // ID врача пока статичен
+
+exports.findAppointment = async (req, res) => {
+    try {
+        const {appointmentId} = req.params;
+        const appointment = await appointmentManager.findAppointment(appointmentId);
+        res.status(200).json(appointment);
+    } catch (error) {
+        res.status(error.statusCode || 500).json({ message: error.message });
+    }
+}
 
 exports.findAppointments = async (req, res) => {
     try {
@@ -39,6 +57,15 @@ exports.cancelAppointment = async (req, res) => {
         res.status(200).json({ message: 'Запись на прием успешно отменена' });
     } catch (error) {
         res.status(400).json({ message: error.message });
+    }
+};
+
+exports.rescheduleAppointment = async (req, res) => {
+    try {
+        const appointment = await appointmentManager.rescheduleAppointment(req.params.appointmentId, req.body);
+        res.status(200).json(appointment);
+    } catch (error) {
+        res.status(error.statusCode || 500).json({ message: error.message });
     }
 };
 

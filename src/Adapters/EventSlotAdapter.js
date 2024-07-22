@@ -6,7 +6,7 @@ class EventSlotAdapter {
             start: new Date(slot.startTime),
             end: new Date(slot.endTime),
             phone: slot.phone,
-            email: slot.email || '',
+            address: slot.address || '',
             type: slot.type,
             isBlocked: false,
         }));
@@ -19,7 +19,7 @@ class EventSlotAdapter {
             startTime: event.start.toISOString(),
             endTime: event.end.toISOString(),
             phone: event.phone,
-            email: event.email || '',
+            address: event.address || '',
             type: event.type,
             isBlocked: event.isBlocked,
         }

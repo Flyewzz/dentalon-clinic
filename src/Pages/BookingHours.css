@@ -142,6 +142,27 @@ input[type='date']::-webkit-calendar-picker-indicator {
   background-color: #0792e0;
 }
 
+.cancel_btn {
+  position: sticky;
+  width: 345px;
+  height: 45px;
+  border-radius: 5px;
+  font-size: 18px;
+  text-transform: uppercase;
+  margin-bottom: 34px;
+  margin-top: 20px;
+  background: transparent;
+  color: #fff;
+  border: 2px solid;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cancel_btn:hover {
+  color: #fff;
+  background-color: darkred;
+}
+
 .submit_btn:active {
   transform: scale(0.97);
 }

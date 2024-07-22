@@ -152,7 +152,7 @@ class EventCalendar extends React.Component {
         
         if (!eventData.isBlocked) {
             eventData.phone = form.phone.value;
-            eventData.email = form.email.value;
+            eventData.address = form.address.value;
             eventData.type = form.type.value;
             // eventData.questions = this.state.selectedEvent.questions; // добавляем вопросы и ответы
         }

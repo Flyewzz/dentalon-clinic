@@ -63,7 +63,7 @@ app.get('/api/v1/contracts/slots/:id', async (req, res) => {
       contractNumber: '1935',
       ...formattedDate,
       patientName: appointmentData.name,
-      patientAddress: "ул. 50 Лет Октября 4/1, 15",
+      patientAddress: appointmentData.address,
       patientPhoneNumber: appointmentData.phone,
     });
 

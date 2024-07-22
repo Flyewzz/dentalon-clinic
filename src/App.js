@@ -16,6 +16,7 @@ import ApBooking from './Components/ApBooking';
 import Dashboard from './Pages/PagesData/Admin/Dashboard';
 import DoctorDashboard from "./Pages/DoctorDashboard";
 import PriceList from "./Pages/PriceList";
+import BookingManagement from "./Pages/BookingManagement";
 import ProtectedRoute from "./Utils/ProtectedRoute";
 
 const App = () => {
@@ -32,7 +33,6 @@ const App = () => {
               <Home />
               <ApBooking />
               <About />
-              <Services />
               <Contact />
             </>
           }
@@ -62,7 +62,11 @@ const App = () => {
           <ProtectedRoute><DoctorDashboard baseUrl={process.env.REACT_APP_SERVER_BASE_URL} /></ProtectedRoute>
         } />
         
-        <Route exact path="/dental-clinic/services" element=<PriceList /> />
+        <Route exact path="/dental-clinic/services" element={<PriceList />} />
+
+        <Route path="/appointments/:appointmentId/management" element={
+          <BookingManagement apiBaseUrl={process.env.REACT_APP_SERVER_BASE_URL} />
+        } />
       </Routes>
     </>
   );

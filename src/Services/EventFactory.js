@@ -8,7 +8,7 @@ class EventFactory {
             new Date(data.startTime),
             new Date(data.endTime),
             data.phone,
-            data.email || '',
+            data.address || '',
             data.type,
             data.questions,
         );

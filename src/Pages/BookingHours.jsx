@@ -16,12 +16,12 @@ const BookingHours = (props) => {
   const url = `${apiBaseUrl}/appointments`;
   const navigate = useNavigate();
   const slotsRef = useRef(null);
-  
+
   const [loader, setLoader] = useState('none');
   const [activeUser, setActiveUser] = useState({
     date: moment().tz(timeZone).format('YYYY-MM-DD'),
     name: '',
-    email: '',
+    address: 'г. Петропавловск-Камчатский, ул. Улица дом, кв',
     phone: '',
     startTime: '',
   });
@@ -35,7 +35,7 @@ const BookingHours = (props) => {
   const formatTimeSlot = (dateString) => {
     return moment(dateString).tz(timeZone).format('HH:mm');
   };
-  
+
   useEffect(() => {
     async function fetchSlots() {
       if (!activeUser.date) return;
@@ -43,7 +43,7 @@ const BookingHours = (props) => {
       try {
         const response = await fetch(`${apiBaseUrl}/appointments?date=${activeUser.date}&type=${selectedType}`);
         const data = await response.json();
-        
+
         setSlots(data); // Обновление слотов
         setSelectedSlotIndex(null); // Сброс выбранного слота
 
@@ -74,7 +74,7 @@ const BookingHours = (props) => {
         setQuestions([]);
       }
     }
-    
+
     fetchQuestions();
   }, [selectedType, apiBaseUrl]);
 
@@ -98,7 +98,7 @@ const BookingHours = (props) => {
     if (!e) {
       return;
     }
-    
+
     if (e.target) { // Обработка обычных инпутов
       name = e.target.name;
       value = e.target.value;
@@ -120,9 +120,9 @@ const BookingHours = (props) => {
 
     return true;
   }
-  
+
   const handleValidation = () => {
-    const { date, name, email, phone, time } = activeUser;
+    const { date, name, address, phone, time } = activeUser;
     if (date === '') {
       toast.error('Выберите дату записи', toastOptions);
       return false;
@@ -132,8 +132,8 @@ const BookingHours = (props) => {
     } else if (name === '') {
       toast.error('Введите ваши ФИО', toastOptions);
       return false;
-    } else if (!validateEmail(email)) {
-      toast.error('Введите корректный email', toastOptions);
+    } else if (address === '') {
+      toast.error('Введите корректный адрес', toastOptions);
       return false;
     } else if (phone === '') {
       toast.error('Введите корректный номер телефона', toastOptions);
@@ -142,23 +142,18 @@ const BookingHours = (props) => {
       toast.error('Выберите доступный слот', toastOptions);
       return false;
     }
-    
+
     return true;
   };
 
-  const validateEmail = (email) => {
-    // Optional email pattern validation: either empty or a valid email pattern
-    return email === '' || /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email);
-  };
-  
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const { date, name, email, phone, startTime } = activeUser;
+    const { date, name, address, phone, startTime } = activeUser;
     const requestOptions = {
       date,
       name,
-      email,
+      address,
       phone,
       startTime,
       type: selectedType,
@@ -201,8 +196,8 @@ const BookingHours = (props) => {
       } catch (err) {
         console.error(err);
         toast.error(
-          err.message,
-          toastOptions
+            err.message,
+            toastOptions
         );
       } finally {
         setBtn(0);
@@ -215,27 +210,27 @@ const BookingHours = (props) => {
   const minDate = moment().tz(timeZone).format('YYYY-MM-DD');
   const maxDate = new Date();
   maxDate.setMonth(maxDate.getMonth() + 1);
-  
+
   return (
-    <>
-      <div className="booking_section_container">
-        <div className="bsc_lower">
-          <form method="POST" onSubmit={handleSubmit}>
-            <div className="bsc_lower_container">
-              <div className="bsc_header">
-                <div className="appointment_hours_form">
-                  <div className="form_for_booking">
-                    <div className="brand">
-                      <img src={Logo} alt="logo" />
-                      <h1>Денталон</h1>
-                    </div>
-                    <div className="in__container">
-                      <label htmlFor="type">Тип слота </label>
-                      <select id="type" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
-                        <option value="consultation">Консультация</option>
-                        <option value="treatment">Лечение</option>
-                      </select>
-                    </div>
+      <>
+        <div className="booking_section_container">
+          <div className="bsc_lower">
+            <form method="POST" onSubmit={handleSubmit}>
+              <div className="bsc_lower_container">
+                <div className="bsc_header">
+                  <div className="appointment_hours_form">
+                    <div className="form_for_booking">
+                      <div className="brand">
+                        <img src={Logo} alt="logo" />
+                        <h1>Денталон</h1>
+                      </div>
+                      <div className="in__container">
+                        <label htmlFor="type">Тип слота </label>
+                        <select id="type" value={selectedType} onChange={e => setSelectedType(e.target.value)}>
+                          <option value="consultation">Консультация</option>
+                          <option value="treatment">Лечение</option>
+                        </select>
+                      </div>
                       {selectedType === 'consultation' && questions.length > 0 && (
                           <div className="in__container">
                             <h3>Вопросы от врача:</h3>
@@ -260,108 +255,108 @@ const BookingHours = (props) => {
                             ))}
                           </div>
                       )}
-                    <div className="in__container">
-                      <label>Выберите дату записи</label>
-                      <input
-                          type="date"
-                          name="date"
-                          style={{color: 'White' }}
-                          value={activeUser.date}
-                          min={ minDate }
-                          max={maxDate.toISOString().split('T')[0]}
-                          onChange={(event) => {
-                            const selectedDate = event.target.value;
-                            if (checkDate(selectedDate)) {
-                              handleInputs(event);
-                            }
-                        }}
-                        
-                        required
-                      />
-                    </div>
-                    <div className="in__container">
-                      <label>ФИО</label>
-                      <input
-                        type="text"
-                        placeholder="Введите ФИО"
-                        name="name"
-                        min="3"
-                        value={activeUser.name}
-                        onChange={handleInputs}
-                        required
-                      />
-                    </div>
-                    <div className="in__container">
-                      <label>Email</label>
-                      <input
-                        type="email"
-                        placeholder="Введите ваш email"
-                        name="email"
-                        min="3"
-                        value={activeUser.email}
-                        onChange={handleInputs}
-                      />
-                    </div>
-                    <div className="in__container">
-                      <label>Номер телефона </label>
-                      <PhoneInput
-                          international
-                          defaultCountry="RU"
-                          value={activeUser.phone}
-                          onChange={handleInputs}
-                          required
-                      />
+                      <div className="in__container">
+                        <label>Выберите дату записи</label>
+                        <input
+                            type="date"
+                            name="date"
+                            style={{color: 'White' }}
+                            value={activeUser.date}
+                            min={ minDate }
+                            max={maxDate.toISOString().split('T')[0]}
+                            onChange={(event) => {
+                              const selectedDate = event.target.value;
+                              if (checkDate(selectedDate)) {
+                                handleInputs(event);
+                              }
+                            }}
+
+                            required
+                        />
+                      </div>
+                      <div className="in__container">
+                        <label>ФИО</label>
+                        <input
+                            type="text"
+                            placeholder="Введите ФИО"
+                            name="name"
+                            min="3"
+                            value={activeUser.name}
+                            onChange={handleInputs}
+                            required
+                        />
+                      </div>
+                      <div className="in__container">
+                        <label>Адрес</label>
+                        <input
+                            type="text"
+                            placeholder="Введите ваш адрес проживания"
+                            name="address"
+                            min="3"
+                            value={activeUser.address}
+                            onChange={handleInputs}
+                        />
+                      </div>
+                      <div className="in__container">
+                        <label>Номер телефона </label>
+                        <PhoneInput
+                            international
+                            defaultCountry="RU"
+                            value={activeUser.phone}
+                            onChange={handleInputs}
+                            required
+                        />
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-              <div className="me_slot_selection">
-                <div className="bsc_lower_morning_container" ref={slotsRef}>
-                  <div><span>Свободные слоты</span></div>
-                  <div className="morning_info_container" id="container45" ref={slotsRef}>
+                <div className="me_slot_selection">
+                  <div className="bsc_lower_morning_container" ref={slotsRef}>
+                    <div><span>Свободные слоты</span></div>
+                    <div className="morning_info_container" id="container45" ref={slotsRef}>
 
-                    {slots !== undefined && slots.length > 0 ? (
-                        slots.map((slot, index) => (
-                            <div
-                                key={index}
-                                className="md_data"
-                                style={{
-                                  backgroundColor: selectedSlotIndex === index ? 'green' : 'white',
-                                  color: selectedSlotIndex === index ? 'white' : 'black',
-                                }}
-                                onClick={() => {
-                                  setSelectedSlotIndex(index);
-                                  setActiveUser({
-                                    ...activeUser,
-                                    startTime: slot.startTime,
-                                  });
-                                }}
-                            >
-                              {formatTimeSlot(slot.startTime)}
-                            </div>
-                        ))
-                    ) : (
+                      {slots !== undefined && slots.length > 0 ? (
+                          slots.map((slot, index) => (
+                              <div
+                                  key={index}
+                                  className="md_data"
+                                  style={{
+                                    backgroundColor: selectedSlotIndex === index ? 'green' : 'white',
+                                    color: selectedSlotIndex === index ? 'white' : 'black',
+                                  }}
+                                  onClick={() => {
+                                    setSelectedSlotIndex(index);
+                                    setActiveUser({
+                                      ...activeUser,
+                                      startTime: slot.startTime,
+                                    });
+                                  }}
+                              >
+                                {formatTimeSlot(slot.startTime)}
+                              </div>
+                          ))
+                      ) : (
 
-                        <p className="no-slots">Нет свободных слотов.</p>
-                    )}
+                          <p className="no-slots">Нет свободных слотов.</p>
+                      )}
+                    </div>
                   </div>
-                </div>
-                <hr style={{ width: '100%' }}/>
-                <div className="submit_slot_btn">
-                  <button className="booking_c_btn" id="bcb" type="submit">
+                  <hr style={{ width: '100%' }}/>
+                  <div className="submit_slot_btn">
+                    <button className="booking_c_btn" id="bcb" type="submit">
                         <span style={btn === 1 ? {display: 'none'} : {}}>
                           Записаться
                         </span>
-                    <Spinner id="sb_loader" style={loader}/>
-                  </button>
+                      <Spinner id="sb_loader" style={loader}/>
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
-          </form>
-          <ToastContainer/>
+            </form>
+            <ToastContainer/>
+          </div>
         </div>
-      </div>
-    </>
+      </>
   );
 };
 

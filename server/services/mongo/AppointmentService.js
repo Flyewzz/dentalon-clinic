@@ -1,12 +1,11 @@
 const Appointment = require('../../domain/model/Appointment');
 const { NotFoundError, ValidationError, DatabaseError } = require('../../errors/Error');
 const {Error} = require("mongoose");
-const moment = require("moment-timezone");
 
 class AppointmentService {
-    async findAppointmentById(id) {
+    async findAppointmentById(id, session = null) {
         try {
-            const appointment = await Appointment.findById(id);
+            const appointment = await Appointment.findById(id).session(session);
             if (!appointment) {
                 throw new NotFoundError('Appointment not found');
             }
@@ -16,42 +15,44 @@ class AppointmentService {
         }
     }
 
-    async findOverlappedAppointments({startTime, endTime, doctorId = 1}) {
+    async findOverlappedAppointments({startTime, endTime, doctorId = 1}, session = null) {
         try {
             return await Appointment.find({
                 startTime: {$lt: new Date(endTime)},
                 endTime: {$gt: new Date(startTime)},
                 doctorId: doctorId,
-            });
+            }).session(session);
         } catch (error) {
             this.handleError(error);
         }
     }
 
-    async findAppointments(startTime, endTime, doctorId = 1) {
+    async findAppointments(startTime, endTime, doctorId = 1, session = null) {
         try {
             return await Appointment.find({
                 startTime: {$lt: endTime},
                 endTime: {$gt: startTime},
                 doctorId: doctorId,
-            });
+            }).session(session);
         } catch (error) {
             this.handleError(error);
         }
     }
 
-    async addAppointment(req) {
+    async addAppointment(req, session = null) {
         try {
             const appointment = new Appointment(req);
-            return await appointment.save();
+            return await appointment.save({ session });
         } catch (error) {
             this.handleError(error);
         }
     }
 
-    async updateAppointment(id, updateData) {
+    async updateAppointment(id, updateData, session = null) {
         try {
-            const appointment = await Appointment.findByIdAndUpdate(id, updateData, { new: true, runValidators: true }).lean();
+            const appointment = await Appointment.findByIdAndUpdate(
+                id, updateData, { new: true, runValidators: true },
+            ).session(session).lean();
             if (!appointment) {
                 throw new NotFoundError(`Appointment ${id} not found`);
             }
@@ -62,9 +63,9 @@ class AppointmentService {
         }
     }
 
-    async deleteAppointment(appointmentId) {
+    async deleteAppointment(appointmentId, session = null) {
         try {
-            const result = await Appointment.findByIdAndDelete(appointmentId);
+            const result = await Appointment.findByIdAndDelete(appointmentId).session(session);
             if (!result) {
                 throw new NotFoundError(`Appointment ${appointmentId} not found`);
             }

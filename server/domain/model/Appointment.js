@@ -35,22 +35,16 @@ const appointmentSchema = new mongoose.Schema({
         minlength: 12,
         maxlength: 12
     },
-    email: {
+    address: {
         type: String,
-        maxlength: 50,
-        default: '',
-        validate: {
-            validator: function(v) {
-                return v === '' || /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/.test(v);
-            },
-            message: props => `${props.value} is not a valid email address!`
-        },
-        sparse: true,  // Это свойство позволяет полям быть уникальными и определенными только когда они не пусты
-    }, // Опциональный email клиента
+        maxlength: 250,
+        required: true,
+    },
     questions: [{
         question: { type: String, required: true },
         answer: { type: String, required: true }
-    }]
+    }],
+    createdAt: { type: Date, default: Date.now },
 });
 
 appointmentSchema.pre('save', function(next) {

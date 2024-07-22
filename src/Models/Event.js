@@ -8,10 +8,10 @@ class Event {
 }
 
 class Slot extends Event {
-    constructor(id, title, startTime, endTime, phone, email, type, questions = []) {
+    constructor(id, title, startTime, endTime, phone, address, type, questions = []) {
         super(id, title, startTime, endTime);
         this.phone = phone;
-        this.email = email;
+        this.address = address;
         this.isBlocked = false;
         this.type = type;
         this.questions = questions;
@@ -24,7 +24,7 @@ class Slot extends Event {
             start: this.startTime,
             end: this.endTime,
             phone: this.phone,
-            email: this.email,
+            address: this.address,
             type: this.type,
             questions: this.questions,
             isBlocked: false,
