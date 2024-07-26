@@ -28,12 +28,10 @@ const appointmentSchema = new mongoose.Schema({
         required: true,
         validate: {
             validator: function(v) {
-                return /\+7[0-9]{10}/.test(v);
+                return /^\+[1-9][0-9]{3,14}$/.test(v);
             },
-            message: props => `${props.value} is not a valid Russian phone number!`
+            message: props => `${props.value} не является корректным номером телефона!`
         },
-        minlength: 12,
-        maxlength: 12
     },
     address: {
         type: String,

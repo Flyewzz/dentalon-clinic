@@ -17,7 +17,23 @@ class NotificationService {
         }
     }
 
+    async findNotificationsByStatus(status, session = null) {
+        try {
+            return await Notification.find({
+                status,
+                scheduledAt: {$lte: new Date()},
+                deletedAt: {$exists: false},
+            }).session(session);
+        } catch (error) {
+            this.handleError(error);
+        }
+    }
+
     async createNotification(req, session = null) {
+        if (!req.contact.phone.startsWith('+7')) {
+            return;
+        }
+        
         req.createdAt = new Date();
         req.status = 'pending';
         req.deliveryType = 'sms';
@@ -32,6 +48,10 @@ class NotificationService {
     }
 
     async createNotifications(appointmentData, notificationTypes, session = null) {
+        if (!appointmentData.contact.startsWith('+7')) {
+            return;
+        }
+        
         const now = new Date();
         const notifications = notificationTypes.map(notificationType => ({
             ...appointmentData,

@@ -22,11 +22,12 @@ class NotificationManager {
 
     async createRescheduleNotifications(appointment, session = null) {
         await this.notificationService.deleteNotificationsByAppointmentId(appointment._id, session);
+        const filteredNotificationTypes = this.filterNotificationTypes(appointment.startTime);
         await this.notificationService.createNotifications({
             appointmentId: appointment._id,
             contact: appointment.phone,
             startTime: appointment.startTime,
-        }, [...notificationTypes, { type: 'reschedule' }], session);
+        }, [...filteredNotificationTypes, { type: 'reschedule' }], session);
     }
 
     async createCancelNotification(appointment, session = null) {
