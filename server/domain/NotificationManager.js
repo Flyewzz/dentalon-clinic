@@ -33,6 +33,7 @@ class NotificationManager {
     async createCancelNotification(appointment, session = null) {
         await this.notificationService.createNotification({
             appointmentId: appointment._id,
+            appointmentTime: appointment.startTime,
             contact: appointment.phone,
             type: 'cancellation',
         }, session);

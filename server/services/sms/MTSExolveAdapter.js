@@ -1,15 +1,16 @@
 const axios = require('axios');
 
 class MTSExolveAdapter {
-    constructor(apiKey) {
+    constructor(apiKey, number) {
         this.apiKey = apiKey;
+        this.number = number;
         this.baseUrl = 'https://api.exolve.ru/messaging/v1/SendSMS';
     }
 
-    async sendSMS({ number, destination, text }) {
+    async sendSMS({ destination, text }) {
         const postData = {
-            number,
-            destination,
+            number: this.number,
+            destination: destination.replace('+', ''),
             text,
         };
         

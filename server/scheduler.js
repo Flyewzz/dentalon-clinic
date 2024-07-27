@@ -4,18 +4,33 @@ const NotificationService = require("./services/mongo/notifications/Notification
 const connectDB = require('./database');
 const {getShortLink} = require("./services/LinkShortener");
 const moment = require("moment-timezone");
+const MTSExolveAdapter = require('./services/sms/MTSExolveAdapter');
+
+require('dotenv').config();
 
 connectDB();
 
+
 class Sender {
+    
+    constructor(smsSender) {
+        this.smsSender = smsSender;
+    }
+    
     async send(notification) {
         const text = await this.generateText(notification);
-        console.log(`notification ${notification.id}, ${notification.type} has been sent to phone number ${notification.contact}: ${text}`);
+        
+        const result = await this.smsSender.sendSMS({
+            destination: notification.contact,
+            text: text,
+        })
+        
+        console.log(`notification ${notification.id}, ${notification.type} with message_id: ${result.message_id}, has been sent to phone number ${notification.contact}: ${text}`);
     }
 
     async generateText(notification) {
         const shortLink = await getShortLink(`http://localhost:3000/appointments/${notification.appointmentId}/management`);
-        const appointmentDate = moment(notification.scheduledAt)
+        const appointmentDate = moment(notification.appointmentTime)
             .tz(process.env.TIMEZONE || 'UTC')
             .format('DD.MM.YYYY HH:mm');
 
@@ -83,7 +98,8 @@ class NotificationScheduler {
 }
 
 const notificationService = new NotificationService();
-const sender = new Sender();
+const smsAdapter = new MTSExolveAdapter(process.env.SMS_API_KEY, process.env.SMS_NUMBER_SENDER);
+const sender = new Sender(smsAdapter);
 const notificationScheduler = new NotificationScheduler(notificationService, sender);
 
 // // Запуск проверки каждую неделю в понедельник в 00:00
@@ -112,8 +128,7 @@ schedule.scheduleJob('* * * * *', () => notificationScheduler.process('reschedul
 
 schedule.scheduleJob('* * * * *', () => notificationScheduler.process('cancellation'));
 
-notificationScheduler.processFailed('failed');
-
+schedule.scheduleJob('* * * * *', () => notificationScheduler.processFailed('failed'));
 
 // // Запуск проверки каждые 5 минут
 // schedule.scheduleJob('* * * * *', () => notificationScheduler.process('booking'));

@@ -38,7 +38,7 @@ class NotificationService {
         req.status = 'pending';
         req.deliveryType = 'sms';
         req.scheduledAt = req.scheduledAt ?? req.createdAt;
-            
+        
         try {
             const notification = new Notification(req);
             return await notification.save({ session });
@@ -61,6 +61,7 @@ class NotificationService {
                     .subtract(notificationType.interval.cnt, notificationType.interval.unit)
                     .toDate()
                 : now,
+            appointmentTime: appointmentData.startTime,
             type: notificationType.type,
             status: 'pending',
             deliveryType: 'sms',

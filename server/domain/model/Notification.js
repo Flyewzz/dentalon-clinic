@@ -11,6 +11,7 @@ const notificationSchema = new mongoose.Schema({
     contact: { type: String, required: true },  // Номер телефона или email
     createdAt: { type: Date, default: Date.now },
     scheduledAt: { type: Date, required: true },
+    appointmentTime: { type: Date, required: true },
     deletedAt: { type: Date },
 });
 
