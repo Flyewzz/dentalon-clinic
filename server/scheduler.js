@@ -29,7 +29,7 @@ class Sender {
     }
 
     async generateText(notification) {
-        const shortLink = await getShortLink(`http://localhost:3000/appointments/${notification.appointmentId}/management`);
+        const shortLink = await getShortLink(`https://dentalon41.ru/appointments/${notification.appointmentId}/management`);
         const appointmentDate = moment(notification.appointmentTime)
             .tz(process.env.TIMEZONE || 'UTC')
             .format('DD.MM.YYYY HH:mm');

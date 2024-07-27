@@ -13,7 +13,6 @@ const limiter = new Bottleneck({
 
 class LinkShortener {
     static async getShortLink(url) {
-        url = url.replace('localhost:3000', 'dentalon41.ru');
         const postData = querystring.stringify({ url });
         const config = {
             headers: {
