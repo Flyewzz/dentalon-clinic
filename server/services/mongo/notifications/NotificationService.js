@@ -30,7 +30,7 @@ class NotificationService {
     }
 
     async createNotification(req, session = null) {
-        if (!req.contact.phone.startsWith('+7')) {
+        if (!req.contact.startsWith('+7')) {
             return;
         }
         
