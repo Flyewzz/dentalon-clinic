@@ -3,11 +3,14 @@ const moment = require('moment-timezone');
 const {NotFoundError} = require("../errors/Error");
 
 class AppointmentManager {
-    constructor(appointmentService, blockAppointmentService, notificationManager) {
+    constructor(
+        appointmentService, blockAppointmentService, notificationManager, notificationsEnabled = true,
+    ) {
         this.appointmentService = appointmentService;
         this.notificationManager = notificationManager;
         this.blockAppointmentService = blockAppointmentService;
         this.transactionManager = new TransactionManager();
+        this.notificationsEnabled = notificationsEnabled;
     }
 
     async findAppointment(appointmentId)  {
@@ -34,7 +37,9 @@ class AppointmentManager {
             req.endTime = endTime;
 
             const appointment = await this.appointmentService.addAppointment(req, session);
-            await this.notificationManager.createBookingNotifications(appointment, session);
+            if (this.notificationsEnabled) {
+                await this.notificationManager.createBookingNotifications(appointment, session);
+            }
         });
     }
 
@@ -43,7 +48,9 @@ class AppointmentManager {
         let appointment;
         await session.withTransaction(async () => {
             appointment = await this.appointmentService.addAppointment(req, session);
-            await this.notificationManager.createBookingNotifications(appointment, session);
+            if (this.notificationsEnabled) {
+                await this.notificationManager.createBookingNotifications(appointment, session);
+            }
         });
         
         return appointment;
@@ -70,7 +77,9 @@ class AppointmentManager {
                 endTime: newEndTime,
             }, session);
 
-            await this.notificationManager.createRescheduleNotifications(updatedAppointment, session);
+            if (this.notificationsEnabled) {
+                await this.notificationManager.createRescheduleNotifications(updatedAppointment, session);
+            }
         });
 
         return updatedAppointment;
@@ -84,7 +93,9 @@ class AppointmentManager {
             await this.notificationManager.deleteNotificationsByAppointmentId(appointmentId, session);
             
             appointment = await this.appointmentService.deleteAppointment(appointmentId, session);
-            await this.notificationManager.createCancelNotification(appointment, session);
+            if (this.notificationsEnabled) {
+                await this.notificationManager.createCancelNotification(appointment, session);
+            }
         });
         
         return appointment;

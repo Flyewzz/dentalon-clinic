@@ -78,7 +78,7 @@ class NotificationScheduler {
     }
 
 
-    async processFailed(type) {
+    async processFailed() {
         const notifications = await this.notificationService.findNotificationsByStatus('failed');
         const tasks = notifications.map(async notification => {
             let status;
@@ -102,37 +102,22 @@ const smsAdapter = new MTSExolveAdapter(process.env.SMS_API_KEY, process.env.SMS
 const sender = new Sender(smsAdapter);
 const notificationScheduler = new NotificationScheduler(notificationService, sender);
 
-// // Запуск проверки каждую неделю в понедельник в 00:00
-// schedule.scheduleJob('0 0 * * *', () => notificationScheduler.process('week'));
-//
-// // Запуск проверки каждые два дня в 00:00
-// schedule.scheduleJob('0 0 */2 * *', () => notificationScheduler.process('twoDays'));
-//
-// // Запуск проверки каждый час в 00 минут (каждые три часа)
-// schedule.scheduleJob('0 */3 * * *', () => notificationScheduler.process('threeHours'));
-//
-
 // Запуск проверки каждую неделю в понедельник в 00:00
-schedule.scheduleJob('* * * * *', () => notificationScheduler.process('week'));
+schedule.scheduleJob('*/15 * * * *', () => notificationScheduler.process('week'));
 
 // Запуск проверки каждые два дня в 00:00
-schedule.scheduleJob('* * * * *', () => notificationScheduler.process('twoDays'));
+schedule.scheduleJob('*/15 * * * *', () => notificationScheduler.process('twoDays'));
 
 // Запуск проверки каждый час в 00 минут (каждые три часа)
-schedule.scheduleJob('* * * * *', () => notificationScheduler.process('threeHours'));
-//
-// // Запуск проверки каждые 5 минут
+schedule.scheduleJob('*/15 * * * *', () => notificationScheduler.process('threeHours'));
+
 schedule.scheduleJob('* * * * *', () => notificationScheduler.process('booking'));
 
 schedule.scheduleJob('* * * * *', () => notificationScheduler.process('reschedule'));
 
 schedule.scheduleJob('* * * * *', () => notificationScheduler.process('cancellation'));
 
-schedule.scheduleJob('* * * * *', () => notificationScheduler.processFailed('failed'));
+schedule.scheduleJob('*/5 * * * *', () => notificationScheduler.processFailed());
 
-// // Запуск проверки каждые 5 минут
-// schedule.scheduleJob('* * * * *', () => notificationScheduler.process('booking'));
-
-// notificationScheduler.process('booking');
 
 module.exports = NotificationScheduler;

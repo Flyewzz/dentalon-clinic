@@ -1,4 +1,4 @@
-// appointmentController.js
+require('dotenv').config();
 
 const AppointmentManager = require('../domain/AppointmentManager');
 const NotificationManager = require('../domain/NotificationManager');
@@ -6,8 +6,6 @@ const SlotManager = require('../domain/SlotManager');
 const AppointmentService = require('../services/mongo/AppointmentService');
 const BlockAppointmentService = require('../services/mongo/BlockAppointmentService');
 const NotificationService = require('../services/mongo/notifications/NotificationService');
-
-const TransactionManager = require('../services/mongo/TransactionManager');
 
 const Schedule = require('../domain/model/Schedule');
 
@@ -17,8 +15,9 @@ const blockAppointmentService = new BlockAppointmentService();
 const notificationService = new NotificationService();
 const notificationManager = new NotificationManager(notificationService);
 
+const notificationsEnabled = process.env.NOTIFICATIONS_ENABLED === 'true';
 const appointmentManager = new AppointmentManager(
-    appointmentService, blockAppointmentService, notificationManager,
+    appointmentService, blockAppointmentService, notificationManager, notificationsEnabled,
 );
 // Предполагаем, что SlotManager правильно инициализирован и готов к использованию
 const slotManager = new SlotManager(1); // ID врача пока статичен
@@ -61,7 +60,7 @@ exports.cancelAppointment = async (req, res) => {
         await appointmentManager.cancelAppointment(req.params.appointmentId);
         res.status(200).json({ message: 'Запись на прием успешно отменена' });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(error.statusCode || 400).json({ message: error.message });
     }
 };
 
@@ -92,7 +91,7 @@ exports.getSlots = function(timezone) {
             res.status(200).json(availableSlots);
         } catch (error) {
             console.error('Error fetching available slots:', error);
-            res.status(500).json({message: 'Failed to fetch available slots due to an error'});
+            res.status(error.statusCode || 500).json({message: 'Failed to fetch available slots due to an error'});
         }
     }
 }

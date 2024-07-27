@@ -2,7 +2,6 @@
 
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const User = require('./domain/model/User');
 const appointmentRoutes = require('./routes/appointmentRoutes'); // Подключение новых маршрутов бронирований
@@ -12,7 +11,7 @@ const Appointment = require('./domain/model/Appointment');
 const moment = require('moment-timezone');
 const connectDB = require('./database');
 const TokenService = require('./services/TokenService');
-const { authenticated, authenticatedDoctor } = require('./middleware/authenticate');
+const { authenticatedDoctor } = require('./middleware/authenticate');
 
 require('dotenv').config();
 
