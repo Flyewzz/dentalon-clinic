@@ -59,7 +59,7 @@ app.get('/api/v1/contracts/slots/:id', async (req, res) => {
         'Договор ортопедического лечения';
     const contractPath = `../controllers/${docType}.docx`;
     const docBuffer = contractManager.buildContract(contractPath, {
-      contractNumber: '1935',
+      contractNumber: appointmentData.contractNumber.toString(),
       ...formattedDate,
       patientName: appointmentData.name,
       patientAddress: appointmentData.address,
@@ -154,10 +154,5 @@ app.get('/dental-clinic/user/profile', authenticatedDoctor(tokenService), async 
   // }
   res.json(req.user);
 });
-
-const PORT = process.env.PORT || 5000;
-if (require.main === module) {
-  app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
-}
 
 module.exports = app;

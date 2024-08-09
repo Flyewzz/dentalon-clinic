@@ -49,6 +49,7 @@ class AppointmentService {
             const appointment = new Appointment(req);
             return await appointment.save({ session });
         } catch (error) {
+            console.log(error);
             this.handleError(error);
         }
     }

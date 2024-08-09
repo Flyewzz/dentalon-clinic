@@ -5,6 +5,7 @@ const appointmentSchema = new mongoose.Schema({
     startTime: { type: Date, required: true },  // Начальное время слота, например "09:00"
     endTime: { type: Date, required: true },  // Конечное время слота, например "10:00"
     doctorId: { type: Number, default: 1 },  // ID доктора, пока статически 1
+    contractNumber: { type: Number },  // ID доктора, пока статически 1
     type: { type: String, required: true, enum: ['consultation', 'treatment'] },  // Тип слота: консультация или лечение
     // Клиентская информация
     name: {

@@ -1,3 +1,4 @@
+const config = require('./config');
 const mongoose = require('mongoose');
 
 const ObjectId = mongoose.Types.ObjectId;
@@ -5,14 +6,12 @@ ObjectId.prototype.valueOf = function () {
     return this.toString();
 };
 
-require('dotenv').config();
-
 const connectDB = async () => {
     if (mongoose.connection.readyState >= 1) {
         return; // уже подключено
     }
     try {
-        await mongoose.connect(process.env.MONGO_URL, {
+        await mongoose.connect(config.dbUri, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
         });

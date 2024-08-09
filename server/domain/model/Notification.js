@@ -16,7 +16,7 @@ const notificationSchema = new mongoose.Schema({
 });
 
 // Индексы для оптимизации поиска
-notificationSchema.index({ appointmentId: 1, type: 1 }, { unique: true });
+// notificationSchema.index({ appointmentId: 1, type: 1 }, { unique: true });
 
 const Notification = mongoose.model('notification', notificationSchema);
 module.exports = Notification;

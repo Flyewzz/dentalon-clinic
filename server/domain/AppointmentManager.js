@@ -1,4 +1,5 @@
 const TransactionManager = require("../services/mongo/TransactionManager");
+const ContractService = require("../services/mongo/ContractService");
 const moment = require('moment-timezone');
 const {NotFoundError} = require("../errors/Error");
 
@@ -36,6 +37,9 @@ class AppointmentManager {
             req.startTime = startTime;
             req.endTime = endTime;
 
+            const contract = await ContractService.getAndUpdateCurrentContractNumber(session);
+            req.contractNumber = contract.currentNumber;
+            
             const appointment = await this.appointmentService.addAppointment(req, session);
             if (this.notificationsEnabled) {
                 await this.notificationManager.createBookingNotifications(appointment, session);
@@ -47,6 +51,9 @@ class AppointmentManager {
         const session = await this.transactionManager.startSession();
         let appointment;
         await session.withTransaction(async () => {
+            const contract = await ContractService.getAndUpdateCurrentContractNumber(session);
+            req.contractNumber = contract.currentNumber;
+            
             appointment = await this.appointmentService.addAppointment(req, session);
             if (this.notificationsEnabled) {
                 await this.notificationManager.createBookingNotifications(appointment, session);
@@ -129,7 +136,7 @@ class AppointmentManager {
             updatedAppointment = await this.appointmentService.updateAppointment(appointmentId, update, session);
 
             // Create reschedule notifications if the condition is true
-            if (isStartTimeChanged || isEndTimeChanged) {
+            if (this.notificationsEnabled && (isStartTimeChanged || isEndTimeChanged)) {
                 await this.notificationManager.createRescheduleNotifications(updatedAppointment, session);
             }
         });

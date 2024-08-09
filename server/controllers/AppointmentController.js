@@ -1,4 +1,4 @@
-require('dotenv').config();
+const config = require('../config');
 
 const AppointmentManager = require('../domain/AppointmentManager');
 const NotificationManager = require('../domain/NotificationManager');
@@ -15,7 +15,7 @@ const blockAppointmentService = new BlockAppointmentService();
 const notificationService = new NotificationService();
 const notificationManager = new NotificationManager(notificationService);
 
-const notificationsEnabled = process.env.NOTIFICATIONS_ENABLED === 'true';
+const notificationsEnabled = config.notificationsEnabled === 'true';
 const appointmentManager = new AppointmentManager(
     appointmentService, blockAppointmentService, notificationManager, notificationsEnabled,
 );
