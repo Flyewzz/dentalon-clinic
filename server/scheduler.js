@@ -40,13 +40,13 @@ class Sender {
             case 'week':
                 return `Напоминаем о приеме в Денталон через неделю, ${appointmentDate}. Подробности: ${shortLink}`;
             case 'twoDays':
-                return `Ваш прием в Денталон ${appointmentDate} через 2 дня. Подробности: ${shortLink}`;
+                return `Ваш прием в Денталон ${appointmentDate} состоится через 2 дня. Подробности: ${shortLink}`;
             case 'threeHours':
-                return `Напоминаем, ваш прием в Денталон ${appointmentDate} через 3 часа. Подробности: ${shortLink}`;
+                return `Напоминаем, ваш прием в Денталон ${appointmentDate} состоится через 3 часа. Подробности: ${shortLink}`;
             case 'reschedule':
                 return `Ваш прием в Денталон перенесен на ${appointmentDate}. Подробности: ${shortLink}`;
             case 'cancellation':
-                return `Ваш прием в Денталон на ${appointmentDate} был успешно отменен.`;
+                return `Запись на прием в Денталон на ${appointmentDate} была снята.`;
             default:
                 return `Уведомление о приеме в Денталон на ${appointmentDate}. Подробности: ${shortLink}`;
         }
