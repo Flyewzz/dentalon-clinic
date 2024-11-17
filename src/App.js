@@ -5,7 +5,6 @@ import Navbar from './Pages/Navbar';
 import Home from './Pages/Home';
 import About from './Pages/About';
 import Appointment from './Pages/Appointment';
-import Services from './Pages/Services';
 import Contact from './Pages/Contact';
 import Login from './Pages/Login';
 import Register from './Pages/Register';
@@ -18,6 +17,7 @@ import DoctorDashboard from "./Pages/DoctorDashboard";
 import PriceList from "./Pages/PriceList";
 import BookingManagement from "./Pages/BookingManagement";
 import ProtectedRoute from "./Utils/ProtectedRoute";
+import Documents from './Pages/Documents';
 
 const App = () => {
   return (
@@ -67,6 +67,8 @@ const App = () => {
         <Route path="/appointments/:appointmentId/management" element={
           <BookingManagement apiBaseUrl={process.env.REACT_APP_SERVER_BASE_URL} />
         } />
+        
+        <Route path="/dental-clinic/documents" element={<Documents /> } />
       </Routes>
     </>
   );

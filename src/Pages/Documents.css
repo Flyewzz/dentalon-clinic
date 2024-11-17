@@ -1,0 +1,68 @@
+.contact_section_container {
+  padding: 20px 20px; /* Добавляем отступы */
+  margin-top: 18px; /* Чтобы заголовок не перекрывался хедером */
+}
+
+.documents-header {
+  margin-bottom: 30px;
+  font-size: 24px;
+  color: #232323;
+  text-align: center;
+}
+
+.documents-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* Три карточки в ряд */
+  gap: 20px; /* Отступы между карточками */
+  justify-content: center;
+  margin: 20px 0;
+}
+
+.document-card {
+  width: 100%; /* Карточки адаптируются к ячейке сетки */
+  max-width: 220px; /* Максимальная ширина карточки */
+  text-align: center;
+  padding: 15px;
+  background: #FCFCFC; /* Цвет фона карточки */
+  border-bottom: 1px solid #EEE; /* Нижняя граница карточки */
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+  border-radius: 8px; /* Скругленные углы */
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.document-card:hover {
+  transform: translateY(-5px); /* Эффект подъема при наведении */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Усиленная тень */
+}
+
+.document-card a {
+  text-decoration: none;
+  color: #003380;
+}
+
+.document-card img {
+  width: 100%;
+  height: auto;
+  border-radius: 4px;
+  margin-bottom: 10px;
+}
+
+.document-card p {
+  font-size: 16px;
+  font-weight: 600;
+  margin: 10px 0;
+}
+
+/* Адаптивность для экранов среднего размера */
+@media screen and (max-width: 1024px) {
+  .documents-container {
+    grid-template-columns: repeat(2, 1fr); /* Две карточки в ряд */
+  }
+}
+
+/* Адаптивность для маленьких экранов */
+@media screen and (max-width: 768px) {
+  .documents-container {
+    grid-template-columns: 1fr; /* Одна карточка в ряд */
+  }
+}

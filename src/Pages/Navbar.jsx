@@ -46,6 +46,11 @@ const Navbar = () => {
               Услуги
             </HashLink>
           </div>
+          <div className="MenuItems">
+            <HashLink to="/dental-clinic/documents" onClick={closeMobileMenu}>
+              Документы
+            </HashLink>
+          </div>
           {/*{ !isAuthenticated &&*/}
           {/*<div className="MenuItems">*/}
           {/*  <HashLink to="/register" onClick={closeMobileMenu}>*/}
@@ -53,19 +58,19 @@ const Navbar = () => {
           {/*  </HashLink>*/}
           {/*</div>*/}
           {/*}*/}
-          { !isAuthenticated &&
-          <div className="MenuItems">
-            <HashLink to="/login_user" onClick={closeMobileMenu}>
-              Войти
-            </HashLink>
-          </div>
+          {!isAuthenticated &&
+              <div className="MenuItems">
+                <HashLink to="/login_user" onClick={closeMobileMenu}>
+                  Войти
+                </HashLink>
+              </div>
           }
           <div className="MenuItems">
             <HashLink to="/#contact-us" onClick={closeMobileMenu}>
               Контакты
             </HashLink>
           </div>
-          { isAuthenticated &&
+          {isAuthenticated &&
               (
                   <>
                     <div className="MenuItems">
@@ -81,12 +86,12 @@ const Navbar = () => {
                   </>
               )
           }
-          { !isAuthenticated &&
-            <div className="MenuItems bgMenu" id="Appointment_menu">
-              <HashLink to="/dental-clinic/slot" onClick={closeMobileMenu}>
-                Запись
-              </HashLink>
-            </div>
+          {!isAuthenticated &&
+              <div className="MenuItems bgMenu" id="Appointment_menu">
+                <HashLink to="/dental-clinic/slot" onClick={closeMobileMenu}>
+                  Запись
+                </HashLink>
+              </div>
           }
         </div>
         <div className="toggle_menu_icons" onClick={handleClick}>
